@@ -1,8 +1,9 @@
 package com.example.MeetSchedulerBot.service;
 
 import com.example.MeetSchedulerBot.actions.ActionInterface;
-import com.example.MeetSchedulerBot.actions.join;
-import com.example.MeetSchedulerBot.actions.newMeeting;
+import com.example.MeetSchedulerBot.actions.Find;
+import com.example.MeetSchedulerBot.actions.Join;
+import com.example.MeetSchedulerBot.actions.NewMeeting;
 import com.example.MeetSchedulerBot.config.BotConfig;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,8 +25,8 @@ import java.util.concurrent.ConcurrentHashMap;
 public class TelegramBot extends TelegramLongPollingBot {
     private Map<Long, Answer> bindingBy = new ConcurrentHashMap<>();
     @Autowired
-    private List<ActionInterface> actionBeans = new ArrayList<>(Arrays.asList(new newMeeting(), new join()));
-    private final List<String> actions = Arrays.asList("/new", "/join");
+    private List<ActionInterface> actionBeans = new ArrayList<>(Arrays.asList(new NewMeeting(), new Join(), new Find()));
+    private final List<String> actions = Arrays.asList("/new", "/join", "/find");
     private String state;
     private final BotConfig config;
 
@@ -37,7 +38,8 @@ public class TelegramBot extends TelegramLongPollingBot {
         this.config = config;
         List<BotCommand> menu = new ArrayList<>();
         menu.add(new BotCommand("/new", "Создание новой встечи"));
-        menu.add(new BotCommand("/join", "Присоединисться к уже существующей встрече"));
+        menu.add(new BotCommand("/Join", "Присоединисться к уже существующей встрече"));
+        menu.add(new BotCommand("/Find", "Найти встречу"));
         menu.add(new BotCommand("/edit", "Редактировать уже существующую встречу"));
         menu.add(new BotCommand("/delete", "Удалить уже существующую встречу"));
 
@@ -84,7 +86,7 @@ public class TelegramBot extends TelegramLongPollingBot {
                         answer.setState("setMeetingName");
                     } else {
                         send(chatId, answer.getMessage());
-                        if (bindingBy.get(chatId).getAction() instanceof newMeeting) {
+                        if (bindingBy.get(chatId).getAction() instanceof NewMeeting) {
                             send(chatId, "Введите название месяца");
                             answer.setState("setMonth");
                             setBindingBy(chatId, answer);

@@ -111,7 +111,7 @@ public class AbstractAction {
         for (int i = 0; i < stringToParseArray.size(); i++) {
             String testString = stringToParseArray.get(i);
             matcher1 = regex1.matcher(testString);
-            //if matcher.find() therefore this interval
+            //if matcher.Find() therefore this interval
             if (matcher1.find()) {
 
                 boolean isStartDayHasMinValue = Integer.valueOf(stringToParseArray.get(i - 1)) + 1 < Integer.valueOf(stringToParseArray.get((i + 1))) - 1;
