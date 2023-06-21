@@ -38,8 +38,8 @@ public class TelegramBot extends TelegramLongPollingBot {
         this.config = config;
         List<BotCommand> menu = new ArrayList<>();
         menu.add(new BotCommand("/new", "Создание новой встечи"));
-        menu.add(new BotCommand("/Join", "Присоединисться к уже существующей встрече"));
-        menu.add(new BotCommand("/Find", "Найти встречу"));
+        menu.add(new BotCommand("/join", "Присоединисться к уже существующей встрече"));
+        menu.add(new BotCommand("/find", "Найти встречу"));
         menu.add(new BotCommand("/edit", "Редактировать уже существующую встречу"));
         menu.add(new BotCommand("/delete", "Удалить уже существующую встречу"));
 
@@ -90,10 +90,13 @@ public class TelegramBot extends TelegramLongPollingBot {
                             send(chatId, "Введите название месяца");
                             answer.setState("setMonth");
                             setBindingBy(chatId, answer);
-                        } else {
+                        } else if (!(bindingBy.get(chatId).getAction() instanceof Find)) {
                             send(chatId, "Введите даты в которые Вы НЕ МОЖЕТЕ встретиться:");
                             answer.setState("setDates");
                             setBindingBy(chatId, answer);
+                        }else if ((bindingBy.get(chatId).getAction() instanceof Find)){
+                            bindingBy.remove(chatId);
+                            send(chatId, "Чтобы продолжить, выбери что-нибудь из меню");
                         }
                     }
                 } else if (bindingBy.get(chatId).getState().equals("setMonth")) {
@@ -109,6 +112,7 @@ public class TelegramBot extends TelegramLongPollingBot {
                     answer.setMessage(usersMessage);
                     answer = answer.getAction().setDates(answer);
                     answer = answer.getAction().getResult(answer);
+                    bindingBy.remove(chatId);
                     send(chatId, answer.getMessage());
                     send(chatId, "Чтобы продолжить, выбери что-нибудь из меню");
                 }

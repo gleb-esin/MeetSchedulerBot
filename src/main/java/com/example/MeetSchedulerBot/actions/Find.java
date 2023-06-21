@@ -15,7 +15,25 @@ public class Find extends AbstractAction implements ActionInterface {
 
     @Override
     public Answer setMeetingName(Answer answer) {
-        return null;
+        String passphrase = answer.getMessage();
+        if (meetingRepository.existsByPassphrase(passphrase)) {
+            if (meetingRepository.existsByChatIdAndAndPassphrase(answer.getMeeting().getChatId(),passphrase)){
+                answer.getMeeting().setMonth(meetingRepository.findMonthByPassphrase(passphrase));
+                answer.getMeeting().setPassphrase(passphrase);
+                answer.setMessage("Найдена встреча <b>" + passphrase + "</b>\n" +
+                        printMeeting(passphrase, answer.getMeeting().getUserLocalDate())
+                );
+                return answer;
+            } else {
+                answer.setMessage("Такая встреча с Вашим участием не найдена. Попробуйте ввести другое название.");
+                answer.setState("Error");
+                return answer;
+            }
+        } else {
+            answer.setMessage("Встреча не найдена, попробуйте ввести другое название");
+            answer.setState("Error");
+            return answer;
+        }
     }
 
 
