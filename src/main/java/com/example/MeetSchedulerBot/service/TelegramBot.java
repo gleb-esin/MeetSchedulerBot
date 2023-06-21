@@ -1,6 +1,7 @@
 package com.example.MeetSchedulerBot.service;
 
 import com.example.MeetSchedulerBot.actions.ActionInterface;
+import com.example.MeetSchedulerBot.actions.join;
 import com.example.MeetSchedulerBot.actions.newMeeting;
 import com.example.MeetSchedulerBot.config.BotConfig;
 import lombok.extern.slf4j.Slf4j;
@@ -10,7 +11,6 @@ import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.ParseMode;
 import org.telegram.telegrambots.meta.api.methods.commands.SetMyCommands;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
-import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.commands.BotCommand;
 import org.telegram.telegrambots.meta.api.objects.commands.scope.BotCommandScopeDefault;
@@ -24,8 +24,8 @@ import java.util.concurrent.ConcurrentHashMap;
 public class TelegramBot extends TelegramLongPollingBot {
     private Map<Long, Answer> bindingBy = new ConcurrentHashMap<>();
     @Autowired
-    private List<ActionInterface> actionBeans = new ArrayList<>(Arrays.asList(new newMeeting()));
-    private final List<String> actions = Arrays.asList("/new");
+    private List<ActionInterface> actionBeans = new ArrayList<>(Arrays.asList(new newMeeting(), new join()));
+    private final List<String> actions = Arrays.asList("/new", "/join");
     private String state;
     private final BotConfig config;
 
@@ -64,7 +64,7 @@ public class TelegramBot extends TelegramLongPollingBot {
                 Meeting meeting = new Meeting();
                 Answer answer = new Answer();
 
-                meeting.setId(chatId);
+                meeting.setChatId(chatId);
                 meeting.setName(update.getMessage().getChat().getFirstName());
                 answer.setMeeting(meeting);
                 answer.setState("setMeetingName");
@@ -99,7 +99,7 @@ public class TelegramBot extends TelegramLongPollingBot {
                     answer.setMessage(usersMessage);
                     answer = answer.getAction().setMonth(answer);
                     send(chatId, answer.getMessage());
-                    send(chatId, "Введите даты в которые Вы НЕ МОЖЕТЕ встретиться:");
+                    send(chatId, "Введите даты в которые Вы <u><b>НЕ МОЖЕТЕ</b></u> встретиться:");
                     answer.setState("setDates");
                     setBindingBy(chatId, answer);
                 } else if (bindingBy.get(chatId).getState().equals("setDates")) {

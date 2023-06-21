@@ -1,8 +1,8 @@
 package com.example.MeetSchedulerBot.service;
 
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
+import jakarta.persistence.*;
+import jakarta.persistence.Id;
 import lombok.Data;
 import lombok.Getter;
 import org.springframework.data.annotation.*;
@@ -17,9 +17,11 @@ import java.util.Map;
 @Entity
 @Component
 public class Meeting {
-    @jakarta.persistence.Id
     @Id
-    private Long id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer id;
+    @Column(name = "chatId")
+    private Long chatId;
     @Column(name = "name")
     private String name;
     @Column(name = "passphrase")
@@ -75,11 +77,7 @@ public class Meeting {
         return userLocalDate;
     }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public Long getId() {
-        return id;
-    }
+//    public void setId(Long chatId) {
+//        this.chatId = chatId;
+//    }
 }

@@ -21,7 +21,7 @@ public class AbstractAction {
      * @param userLocalDate user's LocalDate from user.getLocalDate().
      * @return suitable String for using in printer() method.
      */
-    public static String printer(List<String> dates, LocalDate userLocalDate) {
+    public static String calendarPrinter(List<String> dates, LocalDate userLocalDate) {
         StringBuilder calendar = new StringBuilder();
 
         // Get the day of the week for the first day of the next month
@@ -150,11 +150,8 @@ public class AbstractAction {
     }
 
     public List<String> commonDates(String input) {
-        String[] parts = input.substring(0, input.length()).split(", , ");
-
-
+        String[] parts = input.split("----");
         List<List<String>> lists = new ArrayList<>();
-
         for (String part : parts) {
             String[] numbers = part.split(", ");
             List<String> innerList = new ArrayList<>();
@@ -182,7 +179,7 @@ public class AbstractAction {
         StringBuilder meeting = new StringBuilder();
         meeting.append("Создатель: <b>" + meetingRepository.findOwnerByPassphrase(passphrase));
         meeting.append("</b>\nУчасники: <b>" + meetingRepository.concatenateFirstNamesByPassphrase(passphrase) + "</b>\n");
-        meeting.append(printer(
+        meeting.append(calendarPrinter(
                 commonDates(meetingRepository.concatenateDatesByPassphrase(passphrase)),
                 userLocalDate
         ));

@@ -12,10 +12,6 @@ public class newMeeting extends AbstractAction implements ActionInterface {
 
     @Autowired
     MeetingRepository meetingRepository;
-//    @Autowired
-//    Answer answer;
-//    @Autowired
-//    Meeting meeting;
 
     @Override
     public Answer setMeetingName(Answer answer) {
@@ -36,7 +32,7 @@ public class newMeeting extends AbstractAction implements ActionInterface {
     public Answer setMonth(Answer answer) {
         String month = answer.getMessage();
         answer.getMeeting().setStringToMonth(month);
-        answer.setMessage(printer(wholeMonth(answer.getMeeting().getUserLocalDate()), answer.getMeeting().getUserLocalDate()));
+        answer.setMessage(calendarPrinter(wholeMonth(answer.getMeeting().getUserLocalDate()), answer.getMeeting().getUserLocalDate()));
         return answer;
     }
 
@@ -46,7 +42,7 @@ public class newMeeting extends AbstractAction implements ActionInterface {
         String busyDates = answer.getMessage();
         busyToAvailableConverter(busyDates, answer.getMeeting().getUserLocalDate());
         answer.getMeeting().setDates(busyToAvailableConverter(busyDates, answer.getMeeting().getUserLocalDate()));
-        answer.setMessage(printer(busyToAvailableConverter(busyDates, answer.getMeeting().getUserLocalDate()), answer.getMeeting().getUserLocalDate()));
+        answer.setMessage(calendarPrinter(busyToAvailableConverter(busyDates, answer.getMeeting().getUserLocalDate()), answer.getMeeting().getUserLocalDate()));
         return answer;
     }
 
