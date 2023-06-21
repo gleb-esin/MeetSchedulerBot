@@ -1,9 +1,6 @@
 package com.example.MeetSchedulerBot.service;
 
-import com.example.MeetSchedulerBot.actions.ActionInterface;
-import com.example.MeetSchedulerBot.actions.Find;
-import com.example.MeetSchedulerBot.actions.Join;
-import com.example.MeetSchedulerBot.actions.NewMeeting;
+import com.example.MeetSchedulerBot.actions.*;
 import com.example.MeetSchedulerBot.config.BotConfig;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,8 +22,8 @@ import java.util.concurrent.ConcurrentHashMap;
 public class TelegramBot extends TelegramLongPollingBot {
     private Map<Long, Answer> bindingBy = new ConcurrentHashMap<>();
     @Autowired
-    private List<ActionInterface> actionBeans = new ArrayList<>(Arrays.asList(new NewMeeting(), new Join(), new Find()));
-    private final List<String> actions = Arrays.asList("/new", "/join", "/find");
+    private List<ActionInterface> actionBeans = new ArrayList<>(Arrays.asList(new NewMeeting(), new Join(), new Find(), new Edit()));
+    private final List<String> actions = Arrays.asList("/new", "/join", "/find", "/edit");
     private String state;
     private final BotConfig config;
 
