@@ -22,18 +22,15 @@ import java.util.concurrent.ConcurrentHashMap;
 @Component
 @Slf4j
 public class TelegramBot extends TelegramLongPollingBot {
-    private Map<Long, Map<String, ActionInterface>> bindingBy = new ConcurrentHashMap<>();
+    private Map<Long, Answer> bindingBy = new ConcurrentHashMap<>();
     @Autowired
     private List<ActionInterface> actionBeans = new ArrayList<>(Arrays.asList(new newMeeting()));
     private final List<String> actions = Arrays.asList("/new");
     private String state;
     private final BotConfig config;
-    @Autowired
-    Answer answer;
+
     @Autowired
     MeetingRepository meetingRepository;
-    @Autowired
-    Meeting meeting;
 
 
     public TelegramBot(BotConfig config) {
@@ -56,61 +53,60 @@ public class TelegramBot extends TelegramLongPollingBot {
         if (update.hasMessage()) {
             String usersMessage = update.getMessage().getText();
             Long chatId = update.getMessage().getChatId();
-            String question = "";
-//            Meeting meeting = new Meeting();
-//            Answer answer = new Answer();
+
 
             if (update.getMessage().getText().equals("/start")) {
-                question = startAction(update);
-                send(chatId, question);
+                send(chatId, "Помогу выбрать даты для встречи. Выбери что-нибудь из меню");
 
                 //if user's usersMessage contains some menu command
             } else if (actions.contains(usersMessage)) {
                 //set chatId and name
+                Meeting meeting = new Meeting();
+                Answer answer = new Answer();
+
                 meeting.setId(chatId);
                 meeting.setName(update.getMessage().getChat().getFirstName());
-                setState("setMeetingName");
+                answer.setMeeting(meeting);
+                answer.setState("setMeetingName");
+                answer.setAction(getAction(usersMessage));
                 send(chatId, "Введите название встречи:");
-                setState("setMeetingName");
                 //save user state and action
-                setBindingBy(chatId, state, getAction(usersMessage));
+                setBindingBy(chatId, answer);
                 //if user already send some command
             } else if (bindingBy.containsKey(chatId)) {
                 //update
-                if (bindingBy.get(chatId).containsKey("setMeetingName")) {
-                    answer.setMeeting(meeting);
+                if (bindingBy.get(chatId).getState().equals("setMeetingName")) {
+                    var answer = bindingBy.get(chatId);
                     answer.setMessage(usersMessage);
-                    answer = bindingBy.get(chatId).get("setMeetingName").setMeetingName(answer);
+                    answer = answer.getAction().setMeetingName(answer);
                     if (answer.getMessage().equals("Это название уже занято, попробуйте ввести другое название")) {
                         send(chatId, answer.getMessage());
-                        setState("setMeetingName");
+                        answer.setState("setMeetingName");
                     } else {
                         send(chatId, answer.getMessage());
-                        if (bindingBy.get(chatId).get("setMeetingName") instanceof newMeeting) {
-                            question = "Введите название месяца";
-                            send(chatId, question);
-                            setState("setMonth");
-                            setBindingBy(chatId, state, bindingBy.get(chatId).get("setMeetingName"));
+                        if (bindingBy.get(chatId).getAction() instanceof newMeeting) {
+                            send(chatId, "Введите название месяца");
+                            answer.setState("setMonth");
+                            setBindingBy(chatId, answer);
                         } else {
-                            question = "Введите даты в которые Вы НЕ МОЖЕТЕ встретиться:";
-                            send(chatId, question);
-                            setState("setDates");
-                            setBindingBy(chatId, state, bindingBy.get(chatId).get("setMeetingName"));
+                            send(chatId, "Введите даты в которые Вы НЕ МОЖЕТЕ встретиться:");
+                            answer.setState("setDates");
+                            setBindingBy(chatId, answer);
                         }
                     }
-                } else if (bindingBy.get(chatId).containsKey("setMonth")) {
+                } else if (bindingBy.get(chatId).getState().equals("setMonth")) {
+                    var answer = bindingBy.get(chatId);
                     answer.setMessage(usersMessage);
-                    answer.setMeeting(meeting);
-                    answer = bindingBy.get(chatId).get("setMonth").setMonth(answer);
+                    answer = answer.getAction().setMonth(answer);
                     send(chatId, answer.getMessage());
-                    question = "Введите даты в которые Вы НЕ МОЖЕТЕ встретиться:";
-                    send(chatId, question);
-                    setState("setDates");
-                    setBindingBy(chatId, state, bindingBy.get(chatId).get("setMonth"));
-                } else if (bindingBy.get(chatId).containsKey("setDates")) {
+                    send(chatId, "Введите даты в которые Вы НЕ МОЖЕТЕ встретиться:");
+                    answer.setState("setDates");
+                    setBindingBy(chatId, answer);
+                } else if (bindingBy.get(chatId).getState().equals("setDates")) {
+                    var answer = bindingBy.get(chatId);
                     answer.setMessage(usersMessage);
-                    answer = bindingBy.get(chatId).get("setDates").setDates(answer);
-                    answer = bindingBy.get(chatId).get("setDates").getResult(answer);
+                    answer = answer.getAction().setDates(answer);
+                    answer = answer.getAction().getResult(answer);
                     send(chatId, answer.getMessage());
                     send(chatId, "Чтобы продолжить, выбери что-нибудь из меню");
                 }
@@ -118,19 +114,9 @@ public class TelegramBot extends TelegramLongPollingBot {
         }
     }
 
-    public String startAction(Update update) {
-        Message msg = update.getMessage();
-        String chatId = msg.getChatId().toString();
-        String text = "Помогу выбрать даты для встречи. Выбери что-нибудь из меню";
-        return text;
+    private void setBindingBy(Long chatID, Answer answer) {
+        this.bindingBy.put(chatID, answer);
     }
-
-    private void setBindingBy(Long chatID, String state, ActionInterface action) {
-        Map<String, ActionInterface> actionState = new HashMap<>();
-        actionState.put(state, action);
-        this.bindingBy.put(chatID, actionState);
-    }
-
 
     public void send(Long chatId, String text) {
         SendMessage message = new SendMessage(chatId.toString(), text);
@@ -160,14 +146,5 @@ public class TelegramBot extends TelegramLongPollingBot {
             }
         }
         return null;
-    }
-
-    public String getState() {
-        return state;
-    }
-
-    public void setState(String state) {
-
-        this.state = state;
     }
 }

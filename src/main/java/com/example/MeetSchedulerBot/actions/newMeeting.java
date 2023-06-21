@@ -3,9 +3,11 @@ package com.example.MeetSchedulerBot.actions;
 import com.example.MeetSchedulerBot.service.Answer;
 import com.example.MeetSchedulerBot.service.MeetingRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 @Component
+@Scope("prototype")
 public class newMeeting extends AbstractAction implements ActionInterface {
 
     @Autowired
