@@ -55,8 +55,6 @@ public class Join extends AbstractAction implements ActionInterface {
     @Override
     public Answer getResult(Answer answer) {
         meetingRepository.save(answer.getMeeting());
-//        String passphrase = answer.getMeeting().getPassphrase();
-//        answer.setMeeting(meetingRepository.findMeetingByPassphrase(passphrase));
         answer.setMessage("Вы присоединились к встрече <b>" + answer.getMeeting().getPassphrase() + "</b>: \n" +
                 printMeeting(answer.getMeeting().getPassphrase(), answer.getMeeting().getUserLocalDate()));
         return answer;    }

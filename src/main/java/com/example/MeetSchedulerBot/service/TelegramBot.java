@@ -27,8 +27,8 @@ public class TelegramBot extends TelegramLongPollingBot {
     private String state;
     private final BotConfig config;
 
-    @Autowired
-    MeetingRepository meetingRepository;
+//    @Autowired
+//    MeetingRepository meetingRepository;
 
 
     public TelegramBot(BotConfig config) {
