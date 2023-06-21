@@ -20,6 +20,7 @@ public class newMeeting extends AbstractAction implements ActionInterface {
         if (meetingRepository.existsByPassphrase(passphrase)) {
             var text = "Это название уже занято, попробуйте ввести другое название";
             answer.setMessage(text);
+            answer.setState("Error");
             return answer;
         } else {
             answer.getMeeting().setPassphrase(passphrase);

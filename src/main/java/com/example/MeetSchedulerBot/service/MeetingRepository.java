@@ -12,6 +12,8 @@ public interface MeetingRepository extends CrudRepository<Meeting, Long> {
     boolean existsByPassphrase(String passphrase);
     Meeting findMeetingByPassphrase(String passphrase);
 
+    boolean existsByChatIdAndAndPassphrase(Long chatId, String passphrase);
+
     @Query(value = "SELECT m.month FROM Meeting m WHERE m.passphrase = :passphrase AND m.owner = true", nativeQuery = true)
     int findMonthByPassphrase(@Param("passphrase") String passphrase);
 

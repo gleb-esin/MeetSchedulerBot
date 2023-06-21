@@ -79,7 +79,7 @@ public class TelegramBot extends TelegramLongPollingBot {
                     var answer = bindingBy.get(chatId);
                     answer.setMessage(usersMessage);
                     answer = answer.getAction().setMeetingName(answer);
-                    if (answer.getMessage().equals("Это название уже занято, попробуйте ввести другое название")) {
+                    if (answer.getState().equals("Error")) {
                         send(chatId, answer.getMessage());
                         answer.setState("setMeetingName");
                     } else {

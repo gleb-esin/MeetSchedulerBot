@@ -18,14 +18,21 @@ public class join extends AbstractAction implements ActionInterface {
     public Answer setMeetingName(Answer answer) {
         String passphrase = answer.getMessage();
         if (meetingRepository.existsByPassphrase(passphrase)) {
-            answer.getMeeting().setMonth(meetingRepository.findMonthByPassphrase(passphrase));
-            answer.getMeeting().setPassphrase(passphrase);
-            answer.setMessage("Найдена встреча <b>" + passphrase + "</b>\n" +
-                    printMeeting(passphrase, answer.getMeeting().getUserLocalDate())
-            );
-            return answer;
+            if (meetingRepository.existsByChatIdAndAndPassphrase(answer.getMeeting().getChatId(),passphrase)){
+                answer.setMessage("Вы уже состоите в этой встрече. Чтобы редактировать даты, выберите соответствующий пункт в меню.");
+                answer.setState("Error");
+                return answer;
+            } else {
+                answer.getMeeting().setMonth(meetingRepository.findMonthByPassphrase(passphrase));
+                answer.getMeeting().setPassphrase(passphrase);
+                answer.setMessage("Найдена встреча <b>" + passphrase + "</b>\n" +
+                        printMeeting(passphrase, answer.getMeeting().getUserLocalDate())
+                );
+                return answer;
+            }
         } else {
             answer.setMessage("Встреча не найдена, попробуйте ввести другое название");
+            answer.setState("Error");
             return answer;
         }
     }
