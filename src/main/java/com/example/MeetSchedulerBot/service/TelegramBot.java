@@ -26,11 +26,6 @@ public class TelegramBot extends TelegramLongPollingBot {
     private final List<String> actions = Arrays.asList("/new", "/join", "/find", "/edit");
     private String state;
     private final BotConfig config;
-
-//    @Autowired
-//    MeetingRepository meetingRepository;
-
-
     public TelegramBot(BotConfig config) {
         this.config = config;
         List<BotCommand> menu = new ArrayList<>();
