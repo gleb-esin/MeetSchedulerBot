@@ -45,11 +45,6 @@ public class RemoveMe extends Action implements ActionInterface {
         return answer;
     }
 
-    @Override
-    public Answer setDates(Answer answer) {
-        return answer;
-    }
-
 
     @Override
     public Answer getResult(Answer answer) {

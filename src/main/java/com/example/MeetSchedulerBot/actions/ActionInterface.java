@@ -6,7 +6,6 @@ public interface ActionInterface {
     String getActionKey();
     Answer setMeetingName(Answer answer);
     Answer setMonth(Answer answer);
-    Answer setDates(Answer answer);
     Answer getResult(Answer answer);
 
 }

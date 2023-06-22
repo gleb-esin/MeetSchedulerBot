@@ -47,12 +47,6 @@ public class Join extends Action implements ActionInterface {
 
 
     @Override
-    public Answer setDates(Answer answer) {
-
-        return answer;    }
-
-
-    @Override
     public Answer getResult(Answer answer) {
         String busyDates = answer.getMessage();
         answer.getMeeting().setDates(busyToAvailableConverter(busyDates, answer.getMeeting().getUserLocalDate()));

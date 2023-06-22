@@ -45,12 +45,6 @@ public class Edit extends Action implements ActionInterface {
         return null;
     }
 
-    @Override
-    public Answer setDates(Answer answer) {
-
-        return answer;
-    }
-
 
     @Override
     public Answer getResult(Answer answer) {

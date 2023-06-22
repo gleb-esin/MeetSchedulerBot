@@ -45,12 +45,6 @@ public class Find extends Action implements ActionInterface {
 
 
     @Override
-    public Answer setDates(Answer answer) {
-        return null;
-    }
-
-
-    @Override
     public Answer getResult(Answer answer) {
         return null;
     }
