@@ -22,8 +22,8 @@ import java.util.concurrent.ConcurrentHashMap;
 public class TelegramBot extends TelegramLongPollingBot {
     private Map<Long, Answer> bindingBy = new ConcurrentHashMap<>();
     @Autowired
-    private List<ActionInterface> actionBeans = new ArrayList<>(Arrays.asList(new New(), new Join(), new Find(), new Edit(), new RemoveMe()));
-    private final List<String> actions = Arrays.asList("/new", "/join", "/find", "/edit", "/removeme");
+    private List<ActionInterface> actionBeans = new ArrayList<>(Arrays.asList(new New(), new Join(), new Find(), new Edit(), new RemoveMe(), new DeleteMeeting()));
+    private final List<String> actions = Arrays.asList("/new", "/join", "/find", "/edit", "/removeme", "/deletemeeting");
     private String state;
     private final BotConfig config;
 
@@ -35,6 +35,7 @@ public class TelegramBot extends TelegramLongPollingBot {
         menu.add(new BotCommand("/find", "Найти встречу"));
         menu.add(new BotCommand("/edit", "Редактировать даты"));
         menu.add(new BotCommand("/removeme", "Удалить свое участие"));
+        menu.add(new BotCommand("/deletemeeting", "Удалить свою встречу"));
 
         try {
             execute(new SetMyCommands(menu, new BotCommandScopeDefault(), null));

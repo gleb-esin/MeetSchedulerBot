@@ -177,7 +177,7 @@ public class AbstractAction {
      */
     public String printMeeting(String passphrase,LocalDate userLocalDate) {
         StringBuilder meeting = new StringBuilder();
-        meeting.append("Создатель: <b>" + meetingRepository.findOwnerByPassphrase(passphrase));
+        meeting.append("Владелец: <b>" + meetingRepository.findOwnerByPassphrase(passphrase));
         meeting.append("</b>\nУчасники: <b>" + meetingRepository.concatenateFirstNamesByPassphrase(passphrase) + "</b>\n");
         meeting.append(calendarPrinter(
                 commonDates(meetingRepository.concatenateDatesByPassphrase(passphrase)),
