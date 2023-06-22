@@ -16,11 +16,11 @@ import java.util.List;
 @Getter
 @Setter
 public class Answer {
-    Meeting meeting;
-    String message;
-    String state;
-    ActionInterface action;
-    String question;
-    String debug;
-    List<Long> mustBeNotified = new ArrayList<>();
+    private Meeting meeting;
+    private String message;
+    private String state;
+    private ActionInterface action;
+    private String question;
+    private String notification;
+    private List<Long> mustBeNotified = new ArrayList<>();
 }

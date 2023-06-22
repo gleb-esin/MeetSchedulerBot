@@ -62,10 +62,14 @@ public class New extends Action implements ActionInterface {
                 printMeeting(answer.getMeeting().getPassphrase(), answer.getMeeting().getUserLocalDate()) +
                 "Чтобы пригласть кого-нибудь, просто перешли им название этой встречи.\n\n" +
                 "Помни, что название  - ключ к вашей встрече. " +
-                "Пересылай название этой встречи, только тем, кого хочешь пригласть на эту встречу:\n" +
-                "<b>" + answer.getMeeting().getPassphrase() + "</b>");
+                "Пересылай название этой встречи, только тем, кого хочешь пригласть на эту встречу.\n" +
+                "Чтобы пригласить кого-нибудь просто прешли им это сообщение:");
         answer.setQuestion("Чтобы продолжить, выбери что-нибудь из меню");
-        answer.setState("finnish");
+        answer.setState("notify");
+        answer.setNotification("Привет, это <b>"+answer.getMeeting().getName()+"</b>! Присоединяйся к моей встрече " +
+                "<b>" + answer.getMeeting().getPassphrase() + "</b>" +
+                " через @MeetSchedulerbot!");
+        answer.getMustBeNotified().add(answer.getMeeting().getChat());
         return answer;
     }
 

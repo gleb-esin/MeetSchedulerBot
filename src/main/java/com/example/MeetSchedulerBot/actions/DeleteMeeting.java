@@ -4,6 +4,8 @@ import com.example.MeetSchedulerBot.service.Answer;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+
 @Component
 @Scope("prototype")
 public class DeleteMeeting extends Action implements ActionInterface {
@@ -42,12 +44,19 @@ public class DeleteMeeting extends Action implements ActionInterface {
     @Override
     public Answer getResult(Answer answer) {
         if (answer.getMessage().equalsIgnoreCase("да")) {
-            Long nextOwner = meetingRepository.whoWillBeNextOwner(answer.getMeeting().getPassphrase());
+
+            List<String> notifiedStr = meetingRepository.listOfNotified(answer.getMeeting().getPassphrase());
+            for(int i = 0; i < notifiedStr.size(); i++){
+                answer.getMustBeNotified().add(Long.valueOf(notifiedStr.get(i)));
+            }
+            answer.getMustBeNotified().remove(answer.getMeeting().getChat());
+
             meetingRepository.deleteByChatAndPassphrase(answer.getMeeting().getChat(), answer.getMeeting().getPassphrase());
             answer.setMessage("Вы удалили свою встречу <b>" + answer.getMeeting().getPassphrase() + "</b>. \n" +
                     "Но надо будет как-нибудь создать новую.");
             answer.setQuestion("Чтобы продолжить, выбери что-нибудь из меню");
-            answer.setState("finnish");
+            answer.setNotification("<b>"+answer.getMeeting().getName() + "</b> удалил вашу встречу <b>" + answer.getMeeting().getPassphrase()+ "</b>.\n" +
+                    "Но можно создать свою.");
             return answer;
         } else if (answer.getMessage().equalsIgnoreCase("нет")) {
             answer.setMessage("Удаление встречи отменено.");

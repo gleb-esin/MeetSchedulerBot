@@ -53,13 +53,15 @@ public class Edit extends Action implements ActionInterface {
         answer.setMessage("Вы отредактировали даты своего участия во встрече <b>" + answer.getMeeting().getPassphrase() + "</b>: \n" +
                 printMeeting(answer.getMeeting().getPassphrase(), answer.getMeeting().getUserLocalDate()));
         answer.setQuestion("Чтобы продолжить, выбери что-нибудь из меню");
+
         answer.setState("notify");
-        List<String> notifiedStr = meetingRepository.listOfNotified(answer.getMeeting().getPassphrase());
-        answer.setDebug("<b>"+meetingRepository.findNameByChat(Long.valueOf(notifiedStr.get(0))) + "</b> изменил встречу <b>" + answer.getMeeting().getPassphrase()+ "</b>:\n" +
+                answer.setNotification("<b>" + answer.getMeeting().getName() + "</b> изменил встречу <b>" + answer.getMeeting().getPassphrase() + "</b>:\n" +
                 printMeeting(answer.getMeeting().getPassphrase(), answer.getMeeting().getUserLocalDate()));
-        for(int i = 1; i < notifiedStr.size(); i++){
+        List<String> notifiedStr = meetingRepository.listOfNotified(answer.getMeeting().getPassphrase());
+        for (int i = 0; i < notifiedStr.size(); i++) {
             answer.getMustBeNotified().add(Long.valueOf(notifiedStr.get(i)));
         }
+        answer.getMustBeNotified().remove(answer.getMeeting().getChat());
         return answer;
     }
 }
