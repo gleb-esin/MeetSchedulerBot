@@ -7,6 +7,9 @@ import lombok.ToString;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Component
 @Scope("prototype")
 @ToString
@@ -19,4 +22,5 @@ public class Answer {
     ActionInterface action;
     String question;
     String debug;
+    List<Long> mustBeNotified = new ArrayList<>();
 }

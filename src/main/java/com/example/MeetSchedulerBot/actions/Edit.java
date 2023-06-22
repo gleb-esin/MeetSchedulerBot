@@ -4,6 +4,8 @@ import com.example.MeetSchedulerBot.service.Answer;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+
 @Component
 @Scope("prototype")
 public class Edit extends Action implements ActionInterface {
@@ -51,8 +53,13 @@ public class Edit extends Action implements ActionInterface {
         answer.setMessage("Вы отредактировали даты своего участия во встрече <b>" + answer.getMeeting().getPassphrase() + "</b>: \n" +
                 printMeeting(answer.getMeeting().getPassphrase(), answer.getMeeting().getUserLocalDate()));
         answer.setQuestion("Чтобы продолжить, выбери что-нибудь из меню");
-        answer.setState("finnish");
-        answer.setDebug(meetingRepository.listOfNotified(answer.getMeeting().getPassphrase()).toString());
+        answer.setState("notify");
+        List<String> notifiedStr = meetingRepository.listOfNotified(answer.getMeeting().getPassphrase());
+        answer.setDebug("<b>"+meetingRepository.findNameByChat(Long.valueOf(notifiedStr.get(0))) + "</b> изменил встречу <b>" + answer.getMeeting().getPassphrase()+ "</b>:\n" +
+                printMeeting(answer.getMeeting().getPassphrase(), answer.getMeeting().getUserLocalDate()));
+        for(int i = 1; i < notifiedStr.size(); i++){
+            answer.getMustBeNotified().add(Long.valueOf(notifiedStr.get(i)));
+        }
         return answer;
     }
 }

@@ -50,5 +50,8 @@ public interface MeetingRepository extends CrudRepository<Meeting, Long> {
             "ORDER BY m.edited DESC", nativeQuery = true)
     List<String> listOfNotified(@Param("passphrase") String passphrase);
 
+    @Query(value = "SELECT m.name FROM Meeting m WHERE m.chat = :chat LIMIT 1", nativeQuery = true)
+    String findNameByChat(@Param("chat") Long chat);
+
 
 }
