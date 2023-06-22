@@ -74,15 +74,12 @@ public class TelegramBot extends TelegramLongPollingBot {
                     var answer = bindingBy.get(chatId);
                     answer.setMessage(usersMessage);
                     answer = answer.getAction().setMeetingName(answer);
-
-
                     if (answer.getState().equals("Error")) {
                         send(chatId, answer.getMessage());
                         answer.setState("setMeetingName");
                     } else {
                         send(chatId, answer.getMessage());
                         send(chatId, answer.getQuestion());
-                        //how to put in to get result?
                         if ((bindingBy.get(chatId).getAction() instanceof Find)) {
                             bindingBy.remove(chatId);
                         }

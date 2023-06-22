@@ -64,7 +64,9 @@ public class RemoveMe extends Action implements ActionInterface {
             answer.setState("finnish");
             return answer;
         } else if (answer.getMessage().equalsIgnoreCase("нет")) {
-            answer.setMessage("Чтобы продолжить, выбери что-нибудь из меню");
+            answer.setMessage("Удаление участия отменено.");
+            answer.setQuestion("Чтобы продолжить, выбери что-нибудь из меню.");
+            answer.setState("finnish");
             return answer;
         } else {
             answer.setState("getResult");

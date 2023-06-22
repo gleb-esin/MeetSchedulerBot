@@ -56,8 +56,9 @@ public class DeleteMeeting extends Action implements ActionInterface {
             answer.setState("finnish");
             return answer;
         } else if (answer.getMessage().equalsIgnoreCase("нет")) {
+            answer.setMessage("Удаление встречи отменено.");
+            answer.setQuestion("Чтобы продолжить, выбери что-нибудь из меню.");
             answer.setState("finnish");
-            answer.setMessage("Чтобы продолжить, выбери что-нибудь из меню");
             return answer;
 
         } else {
