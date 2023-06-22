@@ -52,8 +52,10 @@ public class Join extends Action implements ActionInterface {
         answer.getMeeting().setDates(busyToAvailableConverter(busyDates, answer.getMeeting().getUserLocalDate()));
 
         meetingRepository.save(answer.getMeeting());
+        answer.setState("finnish");
         answer.setMessage("Вы присоединились к встрече <b>" + answer.getMeeting().getPassphrase() + "</b>: \n" +
                 printMeeting(answer.getMeeting().getPassphrase(), answer.getMeeting().getUserLocalDate()));
         answer.setQuestion("Чтобы продолжить, выбери что-нибудь из меню");
+        answer.setState("finnish");
         return answer;    }
 }

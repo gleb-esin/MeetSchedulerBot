@@ -57,7 +57,7 @@ public class Edit extends Action implements ActionInterface {
         answer.setMessage("Вы отредактировали даты своего участия во встрече <b>" + answer.getMeeting().getPassphrase() + "</b>: \n" +
                 printMeeting(answer.getMeeting().getPassphrase(), answer.getMeeting().getUserLocalDate()));
         answer.setQuestion("Чтобы продолжить, выбери что-нибудь из меню");
-
+        answer.setState("finnish");
         return answer;
     }
 }

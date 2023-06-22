@@ -54,7 +54,8 @@ public class New extends Action implements ActionInterface {
                 "Помни, что название  - ключ к вашей встрече. " +
                 "Пересылай название этой встречи, только тем, кого хочешь пригласть на эту встречу:\n" +
                 "<b>" + answer.getMeeting().getPassphrase() + "</b>");
-                answer.setQuestion("Чтобы продолжить, выбери что-нибудь из меню");
+        answer.setQuestion("Чтобы продолжить, выбери что-нибудь из меню");
+        answer.setState("finnish");
         return answer;
     }
 

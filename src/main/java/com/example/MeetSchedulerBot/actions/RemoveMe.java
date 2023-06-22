@@ -49,30 +49,27 @@ public class RemoveMe extends Action implements ActionInterface {
     @Override
     public Answer getResult(Answer answer) {
         if (answer.getMessage().equalsIgnoreCase("да")) {
-            answer.setState("finnish");
+            if (meetingRepository.checkPassphraseAndOwner(answer.getMeeting().getPassphrase())) {
+                Long nextOwner = meetingRepository.whoWillBeNextOwner(answer.getMeeting().getPassphrase());
+                answer.setDebug("nextOwner " + nextOwner);
+                meetingRepository.setNextOwner(nextOwner, answer.getMeeting().getPassphrase());
+                meetingRepository.deleteByChatAndPassphrase(answer.getMeeting().getChat(), answer.getMeeting().getPassphrase());
+                answer.setMessage("Вы удалили свое участие во встрече <b>" + answer.getMeeting().getPassphrase() + "</b>: \n" +
+                        printMeeting(answer.getMeeting().getPassphrase(), answer.getMeeting().getUserLocalDate()));
+            }else{
+                answer.setMessage("Вы удалили свою встречу <b>" + answer.getMeeting().getPassphrase() + "</b>. \n" +
+                        "Но надо будет как-нибудь создать новую.");
+            }
             answer.setQuestion("Чтобы продолжить, выбери что-нибудь из меню");
-            Long nextOwner = meetingRepository.whoWillBeNextOwner(answer.getMeeting().getPassphrase());
-            answer.setDebug("nextOwner " + nextOwner);
-
-            meetingRepository.setNextOwner(nextOwner, answer.getMeeting().getPassphrase());
-
-
-
-
-            meetingRepository.deleteByChatAndPassphrase(answer.getMeeting().getChat(), answer.getMeeting().getPassphrase());
-            answer.setMessage("Вы удалили свое участие во встрече <b>" + answer.getMeeting().getPassphrase() + "</b>: \n" +
-                    printMeeting(answer.getMeeting().getPassphrase(), answer.getMeeting().getUserLocalDate()));
+            answer.setState("finnish");
             return answer;
         } else if (answer.getMessage().equalsIgnoreCase("нет")) {
-            answer.setState("finnish");
-            answer.setQuestion("Чтобы продолжить, выбери что-нибудь из меню");
+            answer.setMessage("Чтобы продолжить, выбери что-нибудь из меню");
             return answer;
-
         } else {
             answer.setState("getResult");
-            answer.setQuestion("Ответ не распознан.\nНапишите <b>ДА</b> или <b>НЕТ</b>.");
+            answer.setMessage("Ответ не распознан.\nНапишите <b>ДА</b> или <b>НЕТ</b>.");
             return answer;
-
         }
     }
 }

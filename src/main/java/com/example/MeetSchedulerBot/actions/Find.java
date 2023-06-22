@@ -24,6 +24,7 @@ public class Find extends Action implements ActionInterface {
                         printMeeting(passphrase, answer.getMeeting().getUserLocalDate())
                 );
                 answer.setQuestion("Чтобы продолжить, выбери что-нибудь из меню");
+                answer.setState("finnish");
                 return answer;
             } else {
                 answer.setMessage("Такая встреча с Вашим участием не найдена. Попробуйте ввести другое название.");

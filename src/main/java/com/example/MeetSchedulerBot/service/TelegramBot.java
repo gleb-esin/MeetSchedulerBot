@@ -85,7 +85,6 @@ public class TelegramBot extends TelegramLongPollingBot {
                         //how to put in to get result?
                         if ((bindingBy.get(chatId).getAction() instanceof Find)) {
                             bindingBy.remove(chatId);
-                            send(chatId, "Чтобы продолжить, выбери что-нибудь из меню");
                         }
                     }
                 } else if (bindingBy.get(chatId).getState().equals("setMonth")) {
@@ -97,11 +96,13 @@ public class TelegramBot extends TelegramLongPollingBot {
                 } else if (bindingBy.get(chatId).getState().equals("getResult")) {
                     var answer = bindingBy.get(chatId);
                     answer.setMessage(usersMessage);
-                    answer = answer.getAction().setDates(answer);
                     answer = answer.getAction().getResult(answer);
                     send(chatId, answer.getMessage());
-                    send(chatId, answer.getQuestion());
-                    bindingBy.remove(chatId);
+                    if (answer.getState().equals("finnish")) {
+                        send(chatId, answer.getQuestion());
+                        bindingBy.remove(chatId);
+                    }
+
                 }
             }
         }

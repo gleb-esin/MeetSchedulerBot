@@ -11,6 +11,7 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface MeetingRepository extends CrudRepository<Meeting, Long> {
     boolean existsByPassphrase(String passphrase);
+
     boolean existsByChatAndPassphrase(Long chat, String passphrase);
 
     void deleteByChatAndPassphrase(Long chat, String passphrase);
@@ -36,4 +37,7 @@ public interface MeetingRepository extends CrudRepository<Meeting, Long> {
     @Modifying
     @Query("UPDATE Meeting SET owner = true WHERE passphrase = :passphrase AND chat = :chat")
     void setNextOwner(@Param("chat") Long chat, @Param("passphrase") String passphrase);
+
+    @Query("SELECT CASE WHEN COUNT(m) > 0 THEN true ELSE false END FROM Meeting m WHERE m.passphrase = :passphrase AND m.owner = false")
+    boolean checkPassphraseAndOwner(@Param("passphrase") String passphrase);
 }
