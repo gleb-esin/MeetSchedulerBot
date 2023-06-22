@@ -37,16 +37,4 @@ public class Find extends Action implements ActionInterface {
             return answer;
         }
     }
-
-
-    @Override
-    public Answer setMonth(Answer answer) {
-        return null;
-    }
-
-
-    @Override
-    public Answer getResult(Answer answer) {
-        return null;
-    }
 }

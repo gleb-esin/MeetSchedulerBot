@@ -39,12 +39,6 @@ public class DeleteMeeting extends Action implements ActionInterface {
         }
     }
 
-
-    @Override
-    public Answer setMonth(Answer answer) {
-        return answer;
-    }
-
     @Override
     public Answer getResult(Answer answer) {
         if (answer.getMessage().equalsIgnoreCase("да")) {

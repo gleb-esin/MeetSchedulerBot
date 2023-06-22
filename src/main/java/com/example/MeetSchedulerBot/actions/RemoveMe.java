@@ -41,12 +41,6 @@ public class RemoveMe extends Action implements ActionInterface {
 
 
     @Override
-    public Answer setMonth(Answer answer) {
-        return answer;
-    }
-
-
-    @Override
     public Answer getResult(Answer answer) {
         if (answer.getMessage().equalsIgnoreCase("да")) {
             if (meetingRepository.checkPassphraseAndOwner(answer.getMeeting().getPassphrase())) {
