@@ -18,17 +18,17 @@ public class DeleteMeeting extends AbstractAction implements ActionInterface {
     public Answer setMeetingName(Answer answer) {
         String passphrase = answer.getMessage();
         if (meetingRepository.existsByPassphrase(passphrase)) {
-            if (meetingRepository.existsByChatAndPassphrase(answer.getMeeting().getChat(), passphrase)) {
+            if (meetingRepository.existsByChatAndPassphrase(answer.getMeeting().getChat(), passphrase) && meetingRepository.isUserOwner(answer.getMeeting().getChat(), passphrase)) {
                 answer.getMeeting().setMonth(meetingRepository.findMonthByPassphrase(passphrase));
                 answer.getMeeting().setPassphrase(passphrase);
                 answer.setState("getResult");
-                answer.setQuestion("Вы точно хоите удалить свое участие в этой встрече?\nНапечатайте ответ для подтвеждения (<b>ДА</b>, <b>НЕТ</b>):");
+                answer.setQuestion("Вы точно хоите удалить свою встречу?\nНапечатайте ответ для подтвеждения (<b>ДА</b>, <b>НЕТ</b>):");
                 answer.setMessage("Найдена встреча <b>" + passphrase + "</b>\n" +
                         printMeeting(passphrase, answer.getMeeting().getUserLocalDate())
                 );
                 return answer;
             } else {
-                answer.setMessage("Такая встреча с Вашим участием не найдена. Попробуйте ввести другое название.");
+                answer.setMessage("Такая Ваша встреча не найдена. Попробуйте ввести другое название.");
                 answer.setState("Error");
                 return answer;
             }
@@ -57,16 +57,9 @@ public class DeleteMeeting extends AbstractAction implements ActionInterface {
             answer.setState("finnish");
             answer.setQuestion("Чтобы продолжить, выбери что-нибудь из меню");
             Long nextOwner = meetingRepository.whoWillBeNextOwner(answer.getMeeting().getPassphrase());
-            answer.setDebug("nextOwner " + nextOwner);
-
-            meetingRepository.setNextOwner(nextOwner, answer.getMeeting().getPassphrase());
-
-
-
-
             meetingRepository.deleteByChatAndPassphrase(answer.getMeeting().getChat(), answer.getMeeting().getPassphrase());
-            answer.setMessage("Вы удалили свое участие во встрече <b>" + answer.getMeeting().getPassphrase() + "</b>: \n" +
-                    printMeeting(answer.getMeeting().getPassphrase(), answer.getMeeting().getUserLocalDate()));
+            answer.setMessage("Вы удалили свою встречу <b>" + answer.getMeeting().getPassphrase() + "</b>. \n" +
+                    "Но надо будет как-нибудь создать новую.");
             return answer;
         } else if (answer.getMessage().equalsIgnoreCase("нет")) {
             answer.setState("finnish");
