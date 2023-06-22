@@ -103,9 +103,9 @@ public class TelegramBot extends TelegramLongPollingBot {
                     send(chatId, answer.getMessage());
                     if (answer.getState().equals("finnish")) {
                         send(chatId, answer.getQuestion());
+                        send(chatId, answer.getDebug());
                         bindingBy.remove(chatId);
                     }
-
                 }
             }
         }

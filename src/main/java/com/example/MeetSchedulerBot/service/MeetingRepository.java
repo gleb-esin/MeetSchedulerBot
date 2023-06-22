@@ -7,6 +7,8 @@ import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 @Transactional
 @Repository
 public interface MeetingRepository extends CrudRepository<Meeting, Long> {
@@ -40,4 +42,13 @@ public interface MeetingRepository extends CrudRepository<Meeting, Long> {
 
     @Query("SELECT CASE WHEN COUNT(m) > 0 THEN true ELSE false END FROM Meeting m WHERE m.passphrase = :passphrase AND m.owner = false")
     boolean checkPassphraseAndOwner(@Param("passphrase") String passphrase);
+
+    @Query(value = "SELECT STRING_AGG(CAST(m.chat AS VARCHAR), ' ') " +
+            "FROM Meeting m " +
+            "WHERE m.passphrase = :passphrase " +
+            "GROUP BY m.edited " +
+            "ORDER BY m.edited DESC", nativeQuery = true)
+    List<String> listOfNotified(@Param("passphrase") String passphrase);
+
+
 }
