@@ -6,11 +6,11 @@ import org.springframework.stereotype.Component;
 
 @Component
 @Scope("prototype")
-public class Edit extends AbstractAction implements ActionInterface {
+public class RemoveMe extends AbstractAction implements ActionInterface {
 
     @Override
     public String getActionKey() {
-        return "/edit";
+        return "/removeme";
     }
 
 
@@ -22,7 +22,7 @@ public class Edit extends AbstractAction implements ActionInterface {
                 answer.getMeeting().setMonth(meetingRepository.findMonthByPassphrase(passphrase));
                 answer.getMeeting().setPassphrase(passphrase);
                 answer.setState("getResult");
-                answer.setQuestion("Введите новые даты в которые Вы <u><b>НЕ МОЖЕТЕ</b></u> встретиться:");
+                answer.setQuestion("Вы точно хоите удалить свое участие в этой встрече?\nНапечатайте ответ для подтвеждения (<b>ДА</b>, <b>НЕТ</b>):");
                 answer.setMessage("Найдена встреча <b>" + passphrase + "</b>\n" +
                         printMeeting(passphrase, answer.getMeeting().getUserLocalDate())
                 );
@@ -42,28 +42,42 @@ public class Edit extends AbstractAction implements ActionInterface {
 
     @Override
     public Answer setMonth(Answer answer) {
-        return null;
+        return answer;
     }
 
     @Override
     public Answer setDates(Answer answer) {
-
         return answer;
     }
 
 
     @Override
     public Answer getResult(Answer answer) {
-        String busyDates = answer.getMessage();
-        answer.getMeeting().setDates(busyToAvailableConverter(busyDates, answer.getMeeting().getUserLocalDate()));
-        boolean isUserOwner = meetingRepository.isUserOwner(answer.getMeeting().getChat(), answer.getMeeting().getPassphrase());
-        if (isUserOwner) answer.getMeeting().setOwner(true);
-        meetingRepository.deleteByChatAndPassphrase(answer.getMeeting().getChat(), answer.getMeeting().getPassphrase());
-        meetingRepository.save(answer.getMeeting());
-        answer.setMessage("Вы отредактировали даты своего участия во встрече <b>" + answer.getMeeting().getPassphrase() + "</b>: \n" +
-                printMeeting(answer.getMeeting().getPassphrase(), answer.getMeeting().getUserLocalDate()));
-        answer.setQuestion("Чтобы продолжить, выбери что-нибудь из меню");
+        if (answer.getMessage().equalsIgnoreCase("да")) {
+            answer.setState("finnish");
+            answer.setQuestion("Чтобы продолжить, выбери что-нибудь из меню");
+            Long nextOwner = meetingRepository.whoWillBeNextOwner(answer.getMeeting().getPassphrase());
+            answer.setDebug("nextOwner " + nextOwner);
 
-        return answer;
+            meetingRepository.setNextOwner(nextOwner, answer.getMeeting().getPassphrase());
+
+
+
+
+            meetingRepository.deleteByChatAndPassphrase(answer.getMeeting().getChat(), answer.getMeeting().getPassphrase());
+            answer.setMessage("Вы удалили свое участие во встрече <b>" + answer.getMeeting().getPassphrase() + "</b>: \n" +
+                    printMeeting(answer.getMeeting().getPassphrase(), answer.getMeeting().getUserLocalDate()));
+            return answer;
+        } else if (answer.getMessage().equalsIgnoreCase("нет")) {
+            answer.setState("finnish");
+            answer.setQuestion("Чтобы продолжить, выбери что-нибудь из меню");
+            return answer;
+
+        } else {
+            answer.setState("getResult");
+            answer.setQuestion("Ответ не распознан.\nНапишите <b>ДА</b> или <b>НЕТ</b>.");
+            return answer;
+
+        }
     }
 }

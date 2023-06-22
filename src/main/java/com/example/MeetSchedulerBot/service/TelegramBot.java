@@ -22,18 +22,19 @@ import java.util.concurrent.ConcurrentHashMap;
 public class TelegramBot extends TelegramLongPollingBot {
     private Map<Long, Answer> bindingBy = new ConcurrentHashMap<>();
     @Autowired
-    private List<ActionInterface> actionBeans = new ArrayList<>(Arrays.asList(new NewMeeting(), new Join(), new Find(), new Edit(), new DeleteParticipation()));
-    private final List<String> actions = Arrays.asList("/new", "/join", "/find", "/edit", "/deleteParticipation");
+    private List<ActionInterface> actionBeans = new ArrayList<>(Arrays.asList(new New(), new Join(), new Find(), new Edit(), new RemoveMe()));
+    private final List<String> actions = Arrays.asList("/new", "/join", "/find", "/edit", "/removeme");
     private String state;
     private final BotConfig config;
+
     public TelegramBot(BotConfig config) {
         this.config = config;
         List<BotCommand> menu = new ArrayList<>();
         menu.add(new BotCommand("/new", "Создание новой встечи"));
-        menu.add(new BotCommand("/join", "Присоединисться к уже существующей встрече"));
+        menu.add(new BotCommand("/join", "Присоединисться"));
         menu.add(new BotCommand("/find", "Найти встречу"));
-        menu.add(new BotCommand("/edit", "Редактировать уже существующую встречу"));
-        menu.add(new BotCommand("/deleteParticipation", "Удалитьсвое участие из встречи"));
+        menu.add(new BotCommand("/edit", "Редактировать даты"));
+        menu.add(new BotCommand("/removeme", "Удалить свое участие"));
 
         try {
             execute(new SetMyCommands(menu, new BotCommandScopeDefault(), null));
@@ -57,8 +58,7 @@ public class TelegramBot extends TelegramLongPollingBot {
                 //set chatId and name
                 Meeting meeting = new Meeting();
                 Answer answer = new Answer();
-
-                meeting.setChatId(chatId);
+                meeting.setChat(chatId);
                 meeting.setName(update.getMessage().getChat().getFirstName());
                 answer.setMeeting(meeting);
                 answer.setState("setMeetingName");
@@ -73,20 +73,16 @@ public class TelegramBot extends TelegramLongPollingBot {
                     var answer = bindingBy.get(chatId);
                     answer.setMessage(usersMessage);
                     answer = answer.getAction().setMeetingName(answer);
+
+
                     if (answer.getState().equals("Error")) {
                         send(chatId, answer.getMessage());
                         answer.setState("setMeetingName");
                     } else {
                         send(chatId, answer.getMessage());
-                        if (bindingBy.get(chatId).getAction() instanceof NewMeeting) {
-                            send(chatId, "Введите название месяца");
-                            answer.setState("setMonth");
-                            setBindingBy(chatId, answer);
-                        } else if (!(bindingBy.get(chatId).getAction() instanceof Find)) {
-                            send(chatId, "Введите даты в которые Вы НЕ МОЖЕТЕ встретиться:");
-                            answer.setState("setDates");
-                            setBindingBy(chatId, answer);
-                        }else if ((bindingBy.get(chatId).getAction() instanceof Find)){
+                        send(chatId, answer.getQuestion());
+                        //how to put in to get result?
+                        if ((bindingBy.get(chatId).getAction() instanceof Find)) {
                             bindingBy.remove(chatId);
                             send(chatId, "Чтобы продолжить, выбери что-нибудь из меню");
                         }
@@ -96,17 +92,15 @@ public class TelegramBot extends TelegramLongPollingBot {
                     answer.setMessage(usersMessage);
                     answer = answer.getAction().setMonth(answer);
                     send(chatId, answer.getMessage());
-                    send(chatId, "Введите даты в которые Вы <u><b>НЕ МОЖЕТЕ</b></u> встретиться:");
-                    answer.setState("setDates");
                     setBindingBy(chatId, answer);
-                } else if (bindingBy.get(chatId).getState().equals("setDates")) {
+                } else if (bindingBy.get(chatId).getState().equals("getResult")) {
                     var answer = bindingBy.get(chatId);
                     answer.setMessage(usersMessage);
                     answer = answer.getAction().setDates(answer);
                     answer = answer.getAction().getResult(answer);
-                    bindingBy.remove(chatId);
                     send(chatId, answer.getMessage());
-                    send(chatId, "Чтобы продолжить, выбери что-нибудь из меню");
+                    send(chatId, answer.getQuestion());
+                    bindingBy.remove(chatId);
                 }
             }
         }

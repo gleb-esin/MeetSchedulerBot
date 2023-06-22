@@ -5,7 +5,6 @@ import jakarta.persistence.*;
 import jakarta.persistence.Id;
 import lombok.Data;
 import lombok.Getter;
-import org.springframework.data.annotation.*;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
@@ -20,8 +19,8 @@ public class Meeting {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
-    @Column(name = "chatId")
-    private Long chatId;
+    @Column
+    private Long chat;
     @Column(name = "name")
     private String name;
     @Column(name = "passphrase")

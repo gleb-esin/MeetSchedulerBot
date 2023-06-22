@@ -1,6 +1,7 @@
 package com.example.MeetSchedulerBot.service;
 
 import jakarta.transaction.Transactional;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
@@ -10,9 +11,12 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface MeetingRepository extends CrudRepository<Meeting, Long> {
     boolean existsByPassphrase(String passphrase);
-    Meeting findMeetingByPassphrase(String passphrase);
+    boolean existsByChatAndPassphrase(Long chat, String passphrase);
 
-    boolean existsByChatIdAndAndPassphrase(Long chatId, String passphrase);
+    void deleteByChatAndPassphrase(Long chat, String passphrase);
+
+    @Query(value = "SELECT m.owner FROM Meeting m WHERE m.passphrase = :passphrase AND m.chat = :chat", nativeQuery = true)
+    boolean isUserOwner(@Param("chat") Long chat, @Param("passphrase") String passphrase);
 
     @Query(value = "SELECT m.month FROM Meeting m WHERE m.passphrase = :passphrase AND m.owner = true", nativeQuery = true)
     int findMonthByPassphrase(@Param("passphrase") String passphrase);
@@ -26,4 +30,10 @@ public interface MeetingRepository extends CrudRepository<Meeting, Long> {
     @Query(value = "SELECT STRING_AGG(m.dates, '----') FROM Meeting m WHERE m.passphrase = :passphrase", nativeQuery = true)
     String concatenateDatesByPassphrase(@Param("passphrase") String passphrase);
 
+    @Query(value = "SELECT m.chat FROM Meeting m WHERE m.owner = false AND m.passphrase = :passphrase ORDER BY id LIMIT 1", nativeQuery = true)
+    Long whoWillBeNextOwner(@Param("passphrase") String passphrase);
+
+    @Modifying
+    @Query("UPDATE Meeting SET owner = true WHERE passphrase = :passphrase AND chat = :chat")
+    void setNextOwner(@Param("chat") Long chat, @Param("passphrase") String passphrase);
 }

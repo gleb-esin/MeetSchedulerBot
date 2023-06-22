@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 @Scope("prototype")
-public class NewMeeting extends AbstractAction implements ActionInterface {
+public class New extends AbstractAction implements ActionInterface {
 
     @Autowired
     MeetingRepository meetingRepository;
@@ -25,6 +25,8 @@ public class NewMeeting extends AbstractAction implements ActionInterface {
         } else {
             answer.getMeeting().setPassphrase(passphrase);
             var text = "Встреча " + passphrase + " успешно создана!";
+            answer.setQuestion("Введите название месяца");
+            answer.setState("setMonth");
             answer.setMessage(text);
             return answer;
         }
@@ -34,32 +36,32 @@ public class NewMeeting extends AbstractAction implements ActionInterface {
         String month = answer.getMessage();
         answer.getMeeting().setStringToMonth(month);
         answer.setMessage(calendarPrinter(wholeMonth(answer.getMeeting().getUserLocalDate()), answer.getMeeting().getUserLocalDate()));
+        answer.setQuestion("Введите даты в которые Вы <u><b>НЕ МОЖЕТЕ</b></u> встретиться:");
+        answer.setState("getResult");
         return answer;
     }
 
 
     @Override
     public Answer setDates(Answer answer) {
-        String busyDates = answer.getMessage();
-        busyToAvailableConverter(busyDates, answer.getMeeting().getUserLocalDate());
-        answer.getMeeting().setDates(busyToAvailableConverter(busyDates, answer.getMeeting().getUserLocalDate()));
-        answer.setMessage(calendarPrinter(busyToAvailableConverter(busyDates, answer.getMeeting().getUserLocalDate()), answer.getMeeting().getUserLocalDate()));
+
         return answer;
     }
 
     @Override
     public Answer getResult(Answer answer) {
+        String busyDates = answer.getMessage();
+        answer.getMeeting().setDates(busyToAvailableConverter(busyDates, answer.getMeeting().getUserLocalDate()));
+        answer.setMessage(calendarPrinter(busyToAvailableConverter(busyDates, answer.getMeeting().getUserLocalDate()), answer.getMeeting().getUserLocalDate()));
         meetingRepository.save(answer.getMeeting());
-        String passphrase = answer.getMeeting().getPassphrase();
-        answer.setMeeting(meetingRepository.findMeetingByPassphrase(passphrase));
         answer.setMessage("Создана встреча <b>" + answer.getMeeting().getPassphrase() + "</b>: " +
                 "\n" +
                 printMeeting(answer.getMeeting().getPassphrase(), answer.getMeeting().getUserLocalDate()) +
                 "Чтобы пригласть кого-нибудь, просто перешли им название этой встречи.\n\n" +
                 "Помни, что название  - ключ к вашей встрече. " +
                 "Пересылай название этой встречи, только тем, кого хочешь пригласть на эту встречу:\n" +
-                "<b>" + answer.getMeeting().getPassphrase() + "</b>"
-        );
+                "<b>" + answer.getMeeting().getPassphrase() + "</b>");
+                answer.setQuestion("Чтобы продолжить, выбери что-нибудь из меню");
         return answer;
     }
 
