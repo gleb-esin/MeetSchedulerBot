@@ -88,8 +88,14 @@ public class TelegramBot extends TelegramLongPollingBot {
                     var answer = bindingBy.get(chatId);
                     answer.setMessage(usersMessage);
                     answer = answer.getAction().setMonth(answer);
-                    send(chatId, answer.getMessage());
-                    setBindingBy(chatId, answer);
+                    if(answer.getState().equals("Error")){
+                        send(chatId, answer.getMessage());
+                        answer.setState("setMonth");
+                    }else {
+                        send(chatId, answer.getMessage());
+                        send(chatId, answer.getQuestion());
+                        setBindingBy(chatId, answer);
+                    }
                 } else if (bindingBy.get(chatId).getState().equals("getResult")) {
                     var answer = bindingBy.get(chatId);
                     answer.setMessage(usersMessage);

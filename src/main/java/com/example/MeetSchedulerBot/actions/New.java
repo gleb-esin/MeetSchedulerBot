@@ -6,6 +6,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
+import java.util.Arrays;
+import java.util.List;
+
 @Component
 @Scope("prototype")
 public class New extends Action implements ActionInterface {
@@ -33,12 +36,19 @@ public class New extends Action implements ActionInterface {
     }
 
     public Answer setMonth(Answer answer) {
+        final List<String> months = Arrays.asList("январь", "февраль", "март", "апрель", "май", "июнь", "июль", "август", "сентябрь", "октябрь", "ноябрь", "декабрь");
         String month = answer.getMessage();
-        answer.getMeeting().setStringToMonth(month);
-        answer.setMessage(calendarPrinter(wholeMonth(answer.getMeeting().getUserLocalDate()), answer.getMeeting().getUserLocalDate()));
-        answer.setQuestion("Введите даты в которые Вы <u><b>НЕ МОЖЕТЕ</b></u> встретиться:");
-        answer.setState("getResult");
-        return answer;
+        if(months.contains(month.toLowerCase())) {
+            answer.getMeeting().setStringToMonth(month);
+            answer.setMessage(calendarPrinter(wholeMonth(answer.getMeeting().getUserLocalDate()), answer.getMeeting().getUserLocalDate()));
+            answer.setQuestion("Введите даты в которые Вы <u><b>НЕ МОЖЕТЕ</b></u> встретиться:");
+            answer.setState("getResult");
+            return answer;
+        } else {
+            answer.setMessage("Месяц не распознан. Напечатайте название месяца на руссокм языке (январь, февраль):");
+            answer.setState("Error");
+            return answer;
+        }
     }
 
     @Override
