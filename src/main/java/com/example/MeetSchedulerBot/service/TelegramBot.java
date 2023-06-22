@@ -88,10 +88,10 @@ public class TelegramBot extends TelegramLongPollingBot {
                     var answer = bindingBy.get(chatId);
                     answer.setMessage(usersMessage);
                     answer = answer.getAction().setMonth(answer);
-                    if(answer.getState().equals("Error")){
+                    if (answer.getState().equals("Error")) {
                         send(chatId, answer.getMessage());
                         answer.setState("setMonth");
-                    }else {
+                    } else {
                         send(chatId, answer.getMessage());
                         send(chatId, answer.getQuestion());
                         setBindingBy(chatId, answer);
@@ -102,16 +102,19 @@ public class TelegramBot extends TelegramLongPollingBot {
                     answer = answer.getAction().getResult(answer);
                     send(chatId, answer.getMessage());
                     if (answer.getState().equals("notify")) {
-                        for (Long l: answer.getMustBeNotified()){
+                        for (Long l : answer.getMustBeNotified()) {
                             send(l, answer.getNotification());
                         }
                         send(chatId, answer.getQuestion());
                         bindingBy.remove(chatId);
-                    } else if (answer.getState().equals("finish")) {send(chatId, answer.getQuestion());
+                    } else if (answer.getState().equals("finish")) {
+                        send(chatId, answer.getQuestion());
                         send(chatId, answer.getQuestion());
                         bindingBy.remove(chatId);
                     }
                 }
+            } else {
+                send(chatId, "Команда не распознана. Выбери что-нибудь из меню");
             }
         }
     }
