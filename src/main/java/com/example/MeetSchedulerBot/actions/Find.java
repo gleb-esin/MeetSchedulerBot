@@ -5,7 +5,7 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 @Component
 @Scope("prototype")
-public class Find extends AbstractAction implements ActionInterface {
+public class Find extends Action implements ActionInterface {
 
     @Override
     public String getActionKey() {

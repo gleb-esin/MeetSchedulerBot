@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 @Scope("prototype")
-public class Join extends AbstractAction implements ActionInterface {
+public class Join extends Action implements ActionInterface {
 
     @Override
     public String getActionKey() {

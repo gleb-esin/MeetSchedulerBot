@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 @Scope("prototype")
-public class Edit extends AbstractAction implements ActionInterface {
+public class Edit extends Action implements ActionInterface {
 
     @Override
     public String getActionKey() {

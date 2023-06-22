@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 @Scope("prototype")
-public class New extends AbstractAction implements ActionInterface {
+public class New extends Action implements ActionInterface {
 
     @Autowired
     MeetingRepository meetingRepository;

@@ -11,7 +11,7 @@ import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class AbstractAction {
+public class Action {
     @Autowired
     MeetingRepository meetingRepository;
     /**
