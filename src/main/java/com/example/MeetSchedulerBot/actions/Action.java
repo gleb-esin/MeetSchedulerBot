@@ -114,15 +114,12 @@ public class Action {
             //if matcher.Find() therefore this interval
             if (matcher1.find()) {
 
-                boolean isStartDayHasMinValue = Integer.valueOf(stringToParseArray.get(i - 1)) + 1 < Integer.valueOf(stringToParseArray.get((i + 1))) - 1;
-                int startDay = Integer.valueOf(stringToParseArray.get(i - 1)) + 1;
-                int endDay = Integer.valueOf(stringToParseArray.get((i + 1))) - 1;
-                if (isStartDayHasMinValue) {
-                    startDay = Integer.parseInt(stringToParseArray.get(i - 1)) + 1;
-                    endDay = Integer.parseInt(stringToParseArray.get(i + 1)) - 1;
-                } else {
-                    startDay = Integer.parseInt(stringToParseArray.get(i + 1)) + 1;
-                    endDay = Integer.parseInt(stringToParseArray.get(i - 1)) - 1;
+                boolean isStartDayHasNotMinValue = Integer.valueOf(stringToParseArray.get(i - 1)) > Integer.valueOf(stringToParseArray.get((i + 1)));
+                int startDay = Integer.parseInt(stringToParseArray.get(i - 1)) - 1;
+                int endDay = Integer.parseInt(stringToParseArray.get(i + 1)) + 1;
+                if (isStartDayHasNotMinValue) {
+                    startDay = Integer.parseInt(stringToParseArray.get(i + 1)) - 1;
+                    endDay = Integer.parseInt(stringToParseArray.get(i - 1)) + 1;
                 }
 
                 for (int j = startDay; j <= endDay; j++) {
