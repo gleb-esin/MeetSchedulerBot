@@ -99,7 +99,17 @@ public class Action {
             String match = matcher.group();
             stringToParseArray.add(match);
         }
+        if (stringToParseArray.size() <= 2) {
+            pattern = "[-‐‑‒−–⁃۔➖˗﹘Ⲻ]";
+            regex = Pattern.compile(pattern);
+            for (int i = 0; i < stringToParseArray.size(); i++) {
+                matcher = regex.matcher(stringToParseArray.get(i));
+                if (matcher.find()) {
+                    stringToParseArray.remove(stringToParseArray.get(i));
+                }
+            }
 
+        }
         //creating busyDaysList
         List<String> busyDaysList = new ArrayList<>();
 
