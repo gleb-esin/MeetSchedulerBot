@@ -45,23 +45,31 @@ public class Edit extends Action implements ActionInterface {
     @Override
     public Answer getResult(Answer answer) {
         String busyDates = answer.getMessage();
-        answer.getMeeting().setDates(busyToAvailableConverter(busyDates, answer.getMeeting().getUserLocalDate()));
-        boolean isUserOwner = meetingRepository.isUserOwner(answer.getMeeting().getChat(), answer.getMeeting().getPassphrase());
-        if (isUserOwner) answer.getMeeting().setOwner(true);
-        meetingRepository.deleteByChatAndPassphrase(answer.getMeeting().getChat(), answer.getMeeting().getPassphrase());
-        meetingRepository.save(answer.getMeeting());
-        answer.setMessage("Вы отредактировали даты своего участия во встрече <b>" + answer.getMeeting().getPassphrase() + "</b>: \n" +
-                printMeeting(answer.getMeeting().getPassphrase(), answer.getMeeting().getUserLocalDate()));
-        answer.setQuestion("Чтобы продолжить, выбери что-нибудь из меню");
+        List<String> stringToParseArray = busyDatesParser(busyDates, answer.getMeeting().getUserLocalDate());
+        if (stringToParseArray.isEmpty()) {
+            answer.setMessage("Не распознал числа, повторите, пожалуйста ввод.");
+            answer.setQuestion("Введите даты в которые Вы <u><b>НЕ МОЖЕТЕ</b></u> встретиться:");
+            answer.setState("getResult");
+            return answer;
+        } else {
+            answer.getMeeting().setDates(busyToAvailableConverter(stringToParseArray, answer.getMeeting().getUserLocalDate()));
+            boolean isUserOwner = meetingRepository.isUserOwner(answer.getMeeting().getChat(), answer.getMeeting().getPassphrase());
+            if (isUserOwner) answer.getMeeting().setOwner(true);
+            meetingRepository.deleteByChatAndPassphrase(answer.getMeeting().getChat(), answer.getMeeting().getPassphrase());
+            meetingRepository.save(answer.getMeeting());
+            answer.setMessage("Вы отредактировали даты своего участия во встрече <b>" + answer.getMeeting().getPassphrase() + "</b>: \n" +
+                    printMeeting(answer.getMeeting().getPassphrase(), answer.getMeeting().getUserLocalDate()));
+            answer.setQuestion("Чтобы продолжить, выбери что-нибудь из меню");
 
-        answer.setState("notify");
-                answer.setNotification("<b>" + answer.getMeeting().getName() + "</b> изменил(-а) даты во встрече <b>" + answer.getMeeting().getPassphrase() + "</b>:\n" +
-                printMeeting(answer.getMeeting().getPassphrase(), answer.getMeeting().getUserLocalDate()));
-        List<String> notifiedStr = meetingRepository.listOfNotified(answer.getMeeting().getPassphrase());
-        for (int i = 0; i < notifiedStr.size(); i++) {
-            answer.getMustBeNotified().add(Long.valueOf(notifiedStr.get(i)));
+            answer.setState("notify");
+            answer.setNotification("<b>" + answer.getMeeting().getName() + "</b> изменил(-а) даты во встрече <b>" + answer.getMeeting().getPassphrase() + "</b>:\n" +
+                    printMeeting(answer.getMeeting().getPassphrase(), answer.getMeeting().getUserLocalDate()));
+            List<String> notifiedStr = meetingRepository.listOfNotified(answer.getMeeting().getPassphrase());
+            for (int i = 0; i < notifiedStr.size(); i++) {
+                answer.getMustBeNotified().add(Long.valueOf(notifiedStr.get(i)));
+            }
+            answer.getMustBeNotified().remove(answer.getMeeting().getChat());
+            return answer;
         }
-        answer.getMustBeNotified().remove(answer.getMeeting().getChat());
-        return answer;
     }
 }

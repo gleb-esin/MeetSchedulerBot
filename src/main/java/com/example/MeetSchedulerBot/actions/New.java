@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
 
@@ -38,7 +39,7 @@ public class New extends Action implements ActionInterface {
     public Answer setMonth(Answer answer) {
         final List<String> months = Arrays.asList("январь", "февраль", "март", "апрель", "май", "июнь", "июль", "август", "сентябрь", "октябрь", "ноябрь", "декабрь");
         String month = answer.getMessage();
-        if(months.contains(month.toLowerCase())) {
+        if (months.contains(month.toLowerCase())) {
             answer.getMeeting().setStringToMonth(month);
             answer.setMessage(calendarPrinter(wholeMonth(answer.getMeeting().getUserLocalDate()), answer.getMeeting().getUserLocalDate()));
             answer.setQuestion("Введите даты в которые Вы <u><b>НЕ МОЖЕТЕ</b></u> встретиться:");
@@ -54,23 +55,31 @@ public class New extends Action implements ActionInterface {
     @Override
     public Answer getResult(Answer answer) {
         String busyDates = answer.getMessage();
-        answer.getMeeting().setDates(busyToAvailableConverter(busyDates, answer.getMeeting().getUserLocalDate()));
-        answer.setMessage(calendarPrinter(busyToAvailableConverter(busyDates, answer.getMeeting().getUserLocalDate()), answer.getMeeting().getUserLocalDate()));
-        meetingRepository.save(answer.getMeeting());
-        answer.setMessage("Создана встреча <b>" + answer.getMeeting().getPassphrase() + "</b>: " +
-                "\n" +
-                printMeeting(answer.getMeeting().getPassphrase(), answer.getMeeting().getUserLocalDate()) +
-                "Чтобы пригласть кого-нибудь, просто перешли им название этой встречи.\n\n" +
-                "Помни, что название  - ключ к вашей встрече. " +
-                "Пересылай название этой встречи, только тем, кого хочешь пригласть на эту встречу.\n" +
-                "Чтобы пригласить кого-нибудь просто прешли им это сообщение:");
-        answer.setQuestion("Чтобы продолжить, выбери что-нибудь из меню");
-        answer.setState("notify");
-        answer.setNotification("Привет, это <b>"+answer.getMeeting().getName()+"</b>! Присоединяйся к моей встрече " +
-                "<b>" + answer.getMeeting().getPassphrase() + "</b>" +
-                " через @MeetSchedulerbot!");
-        answer.getMustBeNotified().add(answer.getMeeting().getChat());
-        return answer;
+        List<String> stringToParseArray = busyDatesParser(busyDates, answer.getMeeting().getUserLocalDate());
+        if (stringToParseArray.isEmpty()) {
+            answer.setMessage("Не распознал числа, повторите, пожалуйста ввод.");
+            answer.setQuestion("Введите даты в которые Вы <u><b>НЕ МОЖЕТЕ</b></u> встретиться:");
+            answer.setState("getResult");
+            return answer;
+        } else {
+            answer.getMeeting().setDates(busyToAvailableConverter(stringToParseArray, answer.getMeeting().getUserLocalDate()));
+            answer.setMessage(calendarPrinter(busyToAvailableConverter(stringToParseArray, answer.getMeeting().getUserLocalDate()), answer.getMeeting().getUserLocalDate()));
+            meetingRepository.save(answer.getMeeting());
+            answer.setMessage("Создана встреча <b>" + answer.getMeeting().getPassphrase() + "</b>: " +
+                    "\n" +
+                    printMeeting(answer.getMeeting().getPassphrase(), answer.getMeeting().getUserLocalDate()) +
+                    "Чтобы пригласть кого-нибудь, просто перешли им название этой встречи.\n\n" +
+                    "Помни, что название  - ключ к вашей встрече. " +
+                    "Пересылай название этой встречи, только тем, кого хочешь пригласть на эту встречу.\n" +
+                    "Чтобы пригласить кого-нибудь просто прешли им это сообщение:");
+            answer.setQuestion("Чтобы продолжить, выбери что-нибудь из меню");
+            answer.setState("notify");
+            answer.setNotification("Привет, это <b>" + answer.getMeeting().getName() + "</b>! Присоединяйся к моей встрече " +
+                    "<b>" + answer.getMeeting().getPassphrase() + "</b>" +
+                    " через @MeetSchedulerbot!");
+            answer.getMustBeNotified().add(answer.getMeeting().getChat());
+            return answer;
+        }
     }
 
 

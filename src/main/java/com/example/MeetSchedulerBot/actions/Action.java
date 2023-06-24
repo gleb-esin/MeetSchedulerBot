@@ -86,8 +86,7 @@ public class Action {
      * @param userLocalDate user's LocalDate from user.getLocalDate().
      * @return List of Strings with available dates.
      */
-    public List<String> busyToAvailableConverter(String busyDates, LocalDate userLocalDate) {
-        int firstDayOfMonth = userLocalDate.getDayOfMonth();
+    public static List<String> busyDatesParser(String busyDates, LocalDate userLocalDate) {
 
         //creating stringToParseArray
         List<String> stringToParseArray = new ArrayList<>();
@@ -108,17 +107,22 @@ public class Action {
                     stringToParseArray.remove(stringToParseArray.get(i));
                 }
             }
-
         }
+        return stringToParseArray;
+    }
+
+    public static List<String> busyToAvailableConverter(List<String> stringToParseArray, LocalDate userLocalDate) {
+
         //creating busyDaysList
         List<String> busyDaysList = new ArrayList<>();
-
+        int firstDayOfMonth = userLocalDate.getDayOfMonth();
         int monthLength = userLocalDate.lengthOfMonth();
         String pattern1 = "[-‐‑‒−–⁃۔➖˗﹘Ⲻ]";
         Pattern regex1 = Pattern.compile(pattern1);
         Matcher matcher1;
 
-        for (int i = 0; i < stringToParseArray.size(); i++) {
+        for (
+                int i = 0; i < stringToParseArray.size(); i++) {
             String testString = stringToParseArray.get(i);
             matcher1 = regex1.matcher(testString);
             //if matcher.Find() therefore this interval
@@ -144,11 +148,14 @@ public class Action {
 
         //create availableDaysList
         List<String> availableDaysList = new ArrayList<>();
-        for (int i = 1; i <= monthLength; i++) {
+        for (
+                int i = 1;
+                i <= monthLength; i++) {
             if (i >= firstDayOfMonth) availableDaysList.add(String.valueOf(i));
         }
 
-        for (String i :
+        for (
+                String i :
                 busyDaysList) {
             availableDaysList.remove(i);
         }
