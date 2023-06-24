@@ -24,7 +24,8 @@ public class Edit extends Action implements ActionInterface {
                 answer.getMeeting().setMonth(meetingRepository.findMonthByPassphrase(passphrase));
                 answer.getMeeting().setPassphrase(passphrase);
                 answer.setState("getResult");
-                answer.setQuestion("Введите новые даты в которые Вы <u><b>НЕ МОЖЕТЕ</b></u> встретиться:");
+                answer.setQuestion("Введите новые даты в которые Вы <u><b>НЕ МОЖЕТЕ</b></u> встретиться в формате 1 3 7-15:\n" +
+                        "(Если таких дат нет, введите 0)");
                 answer.setMessage("Найдена встреча <b>" + passphrase + "</b>\n" +
                         printMeeting(passphrase, answer.getMeeting().getUserLocalDate())
                 );

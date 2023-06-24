@@ -48,7 +48,8 @@ public class Join extends Action implements ActionInterface {
         List<String> stringToParseArray = busyDatesParser(busyDates, answer.getMeeting().getUserLocalDate());
         if (stringToParseArray.isEmpty()) {
             answer.setMessage("Не распознал числа, повторите, пожалуйста ввод.");
-            answer.setQuestion("Введите даты в которые Вы <u><b>НЕ МОЖЕТЕ</b></u> встретиться:");
+            answer.setQuestion("Введите новые даты в которые Вы <u><b>НЕ МОЖЕТЕ</b></u> встретиться в формате 1 3 7-15:\n" +
+                    "(Если таких дат нет, введите 0)");
             answer.setState("getResult");
             return answer;
         } else {

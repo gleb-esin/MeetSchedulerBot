@@ -42,7 +42,8 @@ public class New extends Action implements ActionInterface {
         if (months.contains(month.toLowerCase())) {
             answer.getMeeting().setStringToMonth(month);
             answer.setMessage(calendarPrinter(wholeMonth(answer.getMeeting().getUserLocalDate()), answer.getMeeting().getUserLocalDate()));
-            answer.setQuestion("Введите даты в которые Вы <u><b>НЕ МОЖЕТЕ</b></u> встретиться:");
+            answer.setQuestion("Введите новые даты в которые Вы <u><b>НЕ МОЖЕТЕ</b></u> встретиться в формате 1 3 7-15:\n" +
+                    "(Если таких дат нет, введите 0)");
             answer.setState("getResult");
             return answer;
         } else {
