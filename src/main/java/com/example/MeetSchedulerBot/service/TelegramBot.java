@@ -46,7 +46,7 @@ public class TelegramBot extends TelegramLongPollingBot {
 
     @Override
     public void onUpdateReceived(Update update) {
-        if (update.hasMessage()) {
+        if (update.hasMessage() && update.getMessage().hasText()) {
             String usersMessage = update.getMessage().getText();
             Long chatId = update.getMessage().getChatId();
 
@@ -116,6 +116,8 @@ public class TelegramBot extends TelegramLongPollingBot {
             } else {
                 send(chatId, "Команда не распознана. Выбери что-нибудь из меню");
             }
+        } else {
+            send(update.getMessage().getChatId(), "Понимаю только буквы. Повторите ввод, пожалуйста.");
         }
     }
 

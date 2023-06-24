@@ -58,7 +58,7 @@ public class Join extends Action implements ActionInterface {
         }
         answer.getMustBeNotified().remove(answer.getMeeting().getChat());
 
-        answer.setNotification("<b>"+answer.getMeeting().getName()+"</b> присоединился ко встече " +
+        answer.setNotification("<b>"+answer.getMeeting().getName()+"</b> присоединился(-лась) ко встече " +
                 "<b>"+answer.getMeeting().getPassphrase()+"</b>.\n" +
                 printMeeting(answer.getMeeting().getPassphrase(), answer.getMeeting().getUserLocalDate()));
         return answer;

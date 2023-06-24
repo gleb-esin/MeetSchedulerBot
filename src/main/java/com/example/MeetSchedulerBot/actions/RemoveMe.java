@@ -56,7 +56,7 @@ public class RemoveMe extends Action implements ActionInterface {
                 meetingRepository.setNextOwner(nextOwner, answer.getMeeting().getPassphrase());
                 meetingRepository.deleteByChatAndPassphrase(answer.getMeeting().getChat(), answer.getMeeting().getPassphrase());
 
-                answer.setNotification("<b>"+answer.getMeeting().getName() + "</b> не захотел участвовать в вашей встрече <b>" + answer.getMeeting().getPassphrase()+ "</b>:\n" +
+                answer.setNotification("<b>"+answer.getMeeting().getName() + "</b> не захотел(-а) участвовать в вашей встрече <b>" + answer.getMeeting().getPassphrase()+ "</b>:\n" +
                         printMeeting(answer.getMeeting().getPassphrase(), answer.getMeeting().getUserLocalDate())+
                         "Но можно пригласить кого-нибудь еще.");
                 answer.setMessage("Вы удалили свое участие во встрече <b>" + answer.getMeeting().getPassphrase() + "</b>: \n" +
