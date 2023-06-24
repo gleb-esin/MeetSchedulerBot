@@ -122,7 +122,7 @@ public class Action {
                     endDay = Integer.parseInt(stringToParseArray.get(i - 1)) + 1;
                 }
 
-                for (int j = startDay; j <= endDay; j++) {
+                for (int j = startDay; j < endDay; j++) {
                     if (j > monthLength) continue;
                     busyDaysList.add(String.valueOf(j));
                 }
