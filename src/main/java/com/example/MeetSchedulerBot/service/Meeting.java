@@ -8,7 +8,6 @@ import lombok.Getter;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 
 import java.util.List;
 import java.util.Map;
@@ -34,7 +33,8 @@ public class Meeting {
     @Column(name = "dates")
     private String dates;
     @Column
-    LocalDateTime edited = LocalDateTime.now();
+    LocalDate expired = LocalDate.now();
+    private int lastDay;
 
     //need to test
     public void setDates(List<String> availableDaysList) {
@@ -44,7 +44,7 @@ public class Meeting {
             if (i != availableDaysList.size()-1) {
                 dates.append(", ");
             }
-
+            this.lastDay = Integer.valueOf(availableDaysList.get(availableDaysList.size()-1));
             this.dates = dates.toString();
         }
     }

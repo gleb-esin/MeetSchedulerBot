@@ -55,4 +55,6 @@ public interface MeetingRepository extends CrudRepository<Meeting, Long> {
 
 
     void deleteByChatAndPassphrase(Long chat, String passphrase);
+    @Query(value = "SELECT delete_expired_rows_function();", nativeQuery = true)
+    void deleteExpiredMeetings();
 }

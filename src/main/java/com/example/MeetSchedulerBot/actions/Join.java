@@ -3,6 +3,8 @@ package com.example.MeetSchedulerBot.actions;
 import com.example.MeetSchedulerBot.service.Answer;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
+
+import java.time.LocalDate;
 import java.util.List;
 
 @Component
@@ -53,6 +55,10 @@ public class Join extends Action implements ActionInterface {
             return answer;
         } else {
             answer.getMeeting().setDates(busyToAvailableConverter(stringToParseArray, answer.getMeeting().getUserLocalDate()));
+            answer.getMeeting().setExpired(LocalDate.of(
+                    answer.getMeeting().getUserLocalDate().getYear(),
+                    answer.getMeeting().getMonth(),
+                    answer.getMeeting().getLastDay()));
             meetingRepository.save(answer.getMeeting());
             answer.setMessage("Вы присоединились к встрече <b>" + answer.getMeeting().getPassphrase() + "</b>: \n" +
                     printMeeting(answer.getMeeting().getPassphrase(), answer.getMeeting().getUserLocalDate()));

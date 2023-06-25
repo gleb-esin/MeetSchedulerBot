@@ -65,6 +65,11 @@ public class New extends Action implements ActionInterface {
         } else {
             answer.getMeeting().setDates(busyToAvailableConverter(stringToParseArray, answer.getMeeting().getUserLocalDate()));
             answer.setMessage(calendarPrinter(busyToAvailableConverter(stringToParseArray, answer.getMeeting().getUserLocalDate()), answer.getMeeting().getUserLocalDate()));
+            answer.getMeeting().setExpired(LocalDate.of(
+                            answer.getMeeting().getUserLocalDate().getYear(),
+                            answer.getMeeting().getMonth(),
+                            answer.getMeeting().getLastDay()));
+            meetingRepository.deleteExpiredMeetings();
             meetingRepository.save(answer.getMeeting());
             answer.setMessage("Создана встреча <b>" + answer.getMeeting().getPassphrase() + "</b>: " +
                     "\n" +

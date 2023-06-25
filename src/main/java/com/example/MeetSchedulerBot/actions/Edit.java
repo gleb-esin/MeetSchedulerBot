@@ -4,6 +4,7 @@ import com.example.MeetSchedulerBot.service.Answer;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Component
@@ -57,6 +58,10 @@ public class Edit extends Action implements ActionInterface {
             boolean isUserOwner = meetingRepository.isUserOwner(answer.getMeeting().getChat(), answer.getMeeting().getPassphrase());
             if (isUserOwner) answer.getMeeting().setOwner(true);
             meetingRepository.deleteByChatAndPassphrase(answer.getMeeting().getChat(), answer.getMeeting().getPassphrase());
+            answer.getMeeting().setExpired(LocalDate.of(
+                    answer.getMeeting().getUserLocalDate().getYear(),
+                    answer.getMeeting().getMonth(),
+                    answer.getMeeting().getLastDay()));
             meetingRepository.save(answer.getMeeting());
             answer.setMessage("Вы отредактировали даты своего участия во встрече <b>" + answer.getMeeting().getPassphrase() + "</b>: \n" +
                     printMeeting(answer.getMeeting().getPassphrase(), answer.getMeeting().getUserLocalDate()));
