@@ -59,6 +59,7 @@ public class Join extends Action implements ActionInterface {
                     answer.getMeeting().getUserLocalDate().getYear(),
                     answer.getMeeting().getMonth(),
                     answer.getMeeting().getLastDay()));
+            meetingRepository.deleteExpiredMeetings();
             meetingRepository.save(answer.getMeeting());
             answer.setMessage("Вы присоединились к встрече <b>" + answer.getMeeting().getPassphrase() + "</b>: \n" +
                     printMeeting(answer.getMeeting().getPassphrase(), answer.getMeeting().getUserLocalDate()));
