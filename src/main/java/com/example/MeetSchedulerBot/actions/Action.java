@@ -83,10 +83,9 @@ public class Action {
      * This method convert busy dates from user's input to List<String> with available dates.
      *
      * @param busyDates     - String from user's input with busy dates.
-     * @param userLocalDate user's LocalDate from user.getLocalDate().
      * @return List of Strings with available dates.
      */
-    public static List<String> busyDatesParser(String busyDates, LocalDate userLocalDate) {
+    public List<String> busyDatesParser(String busyDates) {
 
         //creating stringToParseArray
         List<String> stringToParseArray = new ArrayList<>();
@@ -111,7 +110,7 @@ public class Action {
         return stringToParseArray;
     }
 
-    public static List<String> busyToAvailableConverter(List<String> stringToParseArray, LocalDate userLocalDate) {
+    public List<String> busyToAvailableConverter(List<String> stringToParseArray, LocalDate userLocalDate) {
 
         //creating busyDaysList
         List<String> busyDaysList = new ArrayList<>();
@@ -129,13 +128,12 @@ public class Action {
             if (matcher1.find()) {
 
                 boolean isStartDayHasNotMinValue = Integer.valueOf(stringToParseArray.get(i - 1)) > Integer.valueOf(stringToParseArray.get((i + 1)));
-                int startDay = Integer.parseInt(stringToParseArray.get(i - 1)) - 1;
+                int startDay = Integer.parseInt(stringToParseArray.get(i - 1))+1;
                 int endDay = Integer.parseInt(stringToParseArray.get(i + 1)) + 1;
                 if (isStartDayHasNotMinValue) {
-                    startDay = Integer.parseInt(stringToParseArray.get(i + 1)) - 1;
+                    startDay = Integer.parseInt(stringToParseArray.get(i + 1))+1;
                     endDay = Integer.parseInt(stringToParseArray.get(i - 1)) + 1;
                 }
-
                 for (int j = startDay; j < endDay; j++) {
                     if (j > monthLength) continue;
                     busyDaysList.add(String.valueOf(j));
@@ -145,7 +143,6 @@ public class Action {
                 busyDaysList.add(stringToParseArray.get(i));
             }
         }
-
         //create availableDaysList
         List<String> availableDaysList = new ArrayList<>();
         for (
@@ -159,7 +156,6 @@ public class Action {
                 busyDaysList) {
             availableDaysList.remove(i);
         }
-
         return availableDaysList;
     }
 

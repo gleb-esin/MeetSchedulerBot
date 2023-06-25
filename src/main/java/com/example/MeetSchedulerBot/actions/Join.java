@@ -44,7 +44,7 @@ public class Join extends Action implements ActionInterface {
     @Override
     public Answer getResult(Answer answer) {
         String busyDates = answer.getMessage();
-        List<String> stringToParseArray = busyDatesParser(busyDates, answer.getMeeting().getUserLocalDate());
+        List<String> stringToParseArray = busyDatesParser(busyDates);
         if (stringToParseArray.isEmpty()) {
             answer.setMessage("Не распознал числа, повторите, пожалуйста ввод.");
             answer.setQuestion("Введите новые даты в которые Вы <u><b>НЕ МОЖЕТЕ</b></u> встретиться в формате 1 3 7-15:\n" +
