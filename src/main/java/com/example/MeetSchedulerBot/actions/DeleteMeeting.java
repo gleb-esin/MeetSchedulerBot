@@ -51,7 +51,7 @@ public class DeleteMeeting extends Action implements ActionInterface {
             }
             answer.getMustBeNotified().remove(answer.getMeeting().getChat());
 
-            meetingRepository.deleteByChatAndPassphrase(answer.getMeeting().getChat(), answer.getMeeting().getPassphrase());
+            meetingRepository.deleteByPassphrase(answer.getMeeting().getPassphrase());
             answer.setState("notify");
             answer.setMessage("Вы удалили свою встречу <b>" + answer.getMeeting().getPassphrase() + "</b>. \n" +
                     "Но надо будет как-нибудь создать новую.");

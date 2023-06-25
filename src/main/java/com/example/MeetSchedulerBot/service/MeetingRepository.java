@@ -16,7 +16,7 @@ public interface MeetingRepository extends CrudRepository<Meeting, Long> {
 
     boolean existsByChatAndPassphrase(Long chat, String passphrase);
 
-    void deleteByChatAndPassphrase(Long chat, String passphrase);
+    void deleteByPassphrase(String passphrase);
 
     @Query(value = "SELECT m.owner FROM Meeting m WHERE m.passphrase = :passphrase AND m.chat = :chat", nativeQuery = true)
     boolean isUserOwner(@Param("chat") Long chat, @Param("passphrase") String passphrase);
@@ -54,4 +54,5 @@ public interface MeetingRepository extends CrudRepository<Meeting, Long> {
     String findNameByChat(@Param("chat") Long chat);
 
 
+    void deleteByChatAndPassphrase(Long chat, String passphrase);
 }
