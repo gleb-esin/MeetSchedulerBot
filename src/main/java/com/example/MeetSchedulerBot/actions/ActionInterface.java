@@ -4,7 +4,10 @@ import com.example.MeetSchedulerBot.service.Answer;
 
 public interface ActionInterface {
     String getActionKey();
-    Answer setMeetingName(Answer answer);
+
+    default Answer setMeetingName(Answer answer) {
+        return null;
+    }
 
     default Answer setMonth(Answer answer) {
         return null;
