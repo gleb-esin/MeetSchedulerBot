@@ -18,6 +18,7 @@ public class RemoveMe extends Action implements ActionInterface {
 
     @Override
     public Answer setMeetingName(Answer answer) {
+        meetingRepository.deleteExpiredMeetings();
         String passphrase = answer.getMessage();
         if (meetingRepository.existsByPassphrase(passphrase)) {
             if (meetingRepository.existsByChatAndPassphrase(answer.getMeeting().getChat(), passphrase)) {

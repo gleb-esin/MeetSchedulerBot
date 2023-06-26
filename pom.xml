@@ -10,12 +10,12 @@
 	</parent>
 	<groupId>com.example</groupId>
 	<artifactId>MeetSchedulerBot</artifactId>
-	<version>build ${buildNumber}, </version>
+	<version>build ${buildNumber}</version>
 	<name>MeetSchedulerBot</name>
 	<description>MeetSchedulerBot</description>
 	<properties>
 		<java.version>17</java.version>
-		<maven.buildInfo>build ${buildNumber}, </maven.buildInfo>
+		<maven.buildInfo>build ${buildNumber}</maven.buildInfo>
 	</properties>
 	<dependencies>
 		<dependency>
