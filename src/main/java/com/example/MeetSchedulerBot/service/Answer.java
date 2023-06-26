@@ -24,5 +24,5 @@ public class Answer {
     private String question;
     private String notification;
     private List<Long> mustBeNotified = new ArrayList<>();
-    InlineKeyboardMarkup inlineButtons;
+    private InlineKeyboardMarkup inlineButtons;
 }

@@ -85,7 +85,7 @@ public class Action {
      * @param busyDates     - String from user's input with busy dates.
      * @return List of Strings with available dates.
      */
-    public List<String> busyDatesParser(String busyDates) {
+    public List<String> datesParser(String busyDates) {
 
         //creating stringToParseArray
         List<String> stringToParseArray = new ArrayList<>();
@@ -163,7 +163,7 @@ public class Action {
 
         //creating availableDaysList
         List<String> availableDaysList = new ArrayList<>();
-        int firstDayOfMonth = userLocalDate.getDayOfMonth();
+//        int firstDayOfMonth = userLocalDate.getDayOfMonth();
         int monthLength = userLocalDate.lengthOfMonth();
         String pattern1 = "[-‐‑‒−–⁃۔➖˗﹘Ⲻ]";
         Pattern regex1 = Pattern.compile(pattern1);
@@ -178,10 +178,10 @@ public class Action {
 
                 boolean isStartDayHasNotMinValue = Integer.valueOf(stringToParseArray.get(i - 1)) > Integer.valueOf(stringToParseArray.get((i + 1)));
                 int startDay = Integer.parseInt(stringToParseArray.get(i - 1))+1;
-                int endDay = Integer.parseInt(stringToParseArray.get(i + 1)) + 1;
+                int endDay = Integer.parseInt(stringToParseArray.get(i + 1));
                 if (isStartDayHasNotMinValue) {
                     startDay = Integer.parseInt(stringToParseArray.get(i + 1))+1;
-                    endDay = Integer.parseInt(stringToParseArray.get(i - 1)) + 1;
+                    endDay = Integer.parseInt(stringToParseArray.get(i - 1));
                 }
                 for (int j = startDay; j < endDay; j++) {
                     if (j > monthLength) continue;

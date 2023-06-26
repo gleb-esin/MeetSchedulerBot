@@ -119,6 +119,10 @@ public class TelegramBot extends TelegramLongPollingBot {
                     answer.setMessage(usersMessage);
                     answer = answer.getAction().getResult(answer);
                     send(chatId, answer.getMessage());
+                    if (answer.getState().equals("Error")) {
+                        send(chatId, answer.getQuestion());
+                        answer.setState("getResult");
+                    }
                     if (answer.getState().equals("notify")) {
                         for (Long l : answer.getMustBeNotified()) {
                             send(l, answer.getNotification());

@@ -46,7 +46,7 @@ public class Join extends Action implements ActionInterface {
     @Override
     public Answer getResult(Answer answer) {
         String busyDates = answer.getMessage();
-        List<String> stringToParseArray = busyDatesParser(busyDates);
+        List<String> stringToParseArray = datesParser(busyDates);
         if (stringToParseArray.isEmpty()) {
             answer.setMessage("Не распознал числа, повторите, пожалуйста ввод.");
             answer.setQuestion("Введите новые даты в которые Вы <u><b>НЕ МОЖЕТЕ</b></u> встретиться в формате 1 3 7-15:\n" +
@@ -67,6 +67,7 @@ public class Join extends Action implements ActionInterface {
             answer.setState("notify");
 
             List<String> notifiedStr = meetingRepository.listOfNotified(answer.getMeeting().getPassphrase());
+            System.out.println("listOfNotified "+meetingRepository.listOfNotified(answer.getMeeting().getPassphrase()));
             for (int i = 0; i < notifiedStr.size(); i++) {
                 answer.getMustBeNotified().add(Long.valueOf(notifiedStr.get(i)));
             }
