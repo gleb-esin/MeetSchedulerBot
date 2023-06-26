@@ -12,6 +12,7 @@ import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.commands.BotCommand;
 import org.telegram.telegrambots.meta.api.objects.commands.scope.BotCommandScopeDefault;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.util.*;
@@ -47,10 +48,8 @@ public class TelegramBot extends TelegramLongPollingBot {
     @Override
     public void onUpdateReceived(Update update) {
         if (update.hasMessage() && update.getMessage().hasText()) {
-            String usersMessage = update.getMessage().getText();
             Long chatId = update.getMessage().getChatId();
-
-
+            String usersMessage = update.getMessage().getText();
             if (update.getMessage().getText().equals("/start")) {
                 send(chatId, "Данный  бот помогает выбрать общие даты при планировании встречи. Участникам предлагается ввести даты, когда, по их мнению, встреча не возможна. Оставшиеся даты считаются приемлемым для всех. Если дат осталось слишком много, по желанию участников, можно отредактировать свои даты, сузив число конечных дат. \n" +
                         "\n" +
@@ -94,7 +93,11 @@ public class TelegramBot extends TelegramLongPollingBot {
                         answer.setState("setMeetingName");
                     } else {
                         send(chatId, answer.getMessage());
-                        send(chatId, answer.getQuestion());
+                        if (answer.getInlineButtons() == null) {
+                            send(chatId, answer.getQuestion());
+                        } else {
+                            sendInlineMarkup(chatId, answer.getQuestion(), answer.getInlineButtons());
+                        }
                         if ((bindingBy.get(chatId).getAction() instanceof Find)) {
                             bindingBy.remove(chatId);
                         }
@@ -111,7 +114,7 @@ public class TelegramBot extends TelegramLongPollingBot {
                         send(chatId, answer.getQuestion());
                         setBindingBy(chatId, answer);
                     }
-                } else if (bindingBy.get(chatId).getState().equals("getResult")) {
+                } else if (bindingBy.get(chatId).getState().contains("getResult")) {
                     var answer = bindingBy.get(chatId);
                     answer.setMessage(usersMessage);
                     answer = answer.getAction().getResult(answer);
@@ -130,6 +133,24 @@ public class TelegramBot extends TelegramLongPollingBot {
             } else {
                 send(chatId, "Команда не распознана. Выбери что-нибудь из меню");
             }
+        } else if (update.hasCallbackQuery()) {
+            if (update.getCallbackQuery().getData().equals("setBusyDates")) {
+                var chatId = update.getCallbackQuery().getMessage().getChatId();
+                var answer = bindingBy.get(chatId);
+                answer.setQuestion("Введите новые даты в которые Вы <u><b>НЕ МОЖЕТЕ</b></u> встретиться в формате 1 3 7-15:\n" +
+                        "(Если таких дат нет, введите 0)");
+                answer.setState("getResult setBusyDates");
+                send(chatId, answer.getQuestion());
+                setBindingBy(chatId, answer);
+            } else if (update.getCallbackQuery().getData().equals("setAvailableDates")) {
+                var chatId = update.getCallbackQuery().getMessage().getChatId();
+                var answer = bindingBy.get(chatId);
+                answer.setQuestion("Введите даты, которые Вы считаете наиболее <u><b>ПОДХОДЯЩИМИ</b></u> в формате 1 3 7-15:\n" +
+                        "(Чем больше дат Вы отметите, тем с большей вероятностью состоятся встреча)");
+                answer.setState("getResult setAvailableDates");
+                send(chatId, answer.getQuestion());
+                setBindingBy(chatId, answer);
+            }
         } else {
             send(update.getMessage().getChatId(), "Понимаю только буквы. Повторите ввод, пожалуйста.");
         }
@@ -142,6 +163,17 @@ public class TelegramBot extends TelegramLongPollingBot {
     public void send(Long chatId, String text) {
         SendMessage message = new SendMessage(chatId.toString(), text);
         message.setParseMode(ParseMode.HTML);
+        try {
+            execute(message);
+        } catch (TelegramApiException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void sendInlineMarkup(Long chatId, String text, InlineKeyboardMarkup inlineKeyboardMarkup) {
+        SendMessage message = new SendMessage(chatId.toString(), text);
+        message.setParseMode(ParseMode.HTML);
+        message.setReplyMarkup(inlineKeyboardMarkup);
         try {
             execute(message);
         } catch (TelegramApiException e) {
