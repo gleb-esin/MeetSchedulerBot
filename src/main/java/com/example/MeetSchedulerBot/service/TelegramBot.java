@@ -36,6 +36,7 @@ public class TelegramBot extends TelegramLongPollingBot {
         menu.add(new BotCommand("/find", "Найти встречу"));
         menu.add(new BotCommand("/edit", "Редактировать даты"));
         menu.add(new BotCommand("/removeme", "Удалить свое участие"));
+        menu.add(new BotCommand("/deletemeeting", "Удалить свою встречу"));
         menu.add(new BotCommand("/feedback", "Оставить отзыв, предложение или замечение"));
 
         try {
