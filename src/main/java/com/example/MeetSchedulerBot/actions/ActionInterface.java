@@ -17,4 +17,7 @@ public interface ActionInterface {
         return null;
     }
 
+    default Answer setBusyDates(Answer answer) {
+        return null;
+    }
 }

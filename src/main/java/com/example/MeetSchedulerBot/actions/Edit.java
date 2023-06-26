@@ -3,8 +3,11 @@ package com.example.MeetSchedulerBot.actions;
 import com.example.MeetSchedulerBot.service.Answer;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 @Component
@@ -24,9 +27,11 @@ public class Edit extends Action implements ActionInterface {
             if (meetingRepository.existsByChatAndPassphrase(answer.getMeeting().getChat(), passphrase)) {
                 answer.getMeeting().setMonth(meetingRepository.findMonthByPassphrase(passphrase));
                 answer.getMeeting().setPassphrase(passphrase);
-                answer.setState("getResult");
-                answer.setQuestion("Введите новые даты в которые Вы <u><b>НЕ МОЖЕТЕ</b></u> встретиться в формате 1 3 7-15:\n" +
-                        "(Если таких дат нет, введите 0)");
+                answer.setState("setDates");
+                answer.setQuestion("Выберите один из вариантов:\n" +
+                        "<b>Убрать неподходящие даты</b> или <b>Оставить подходящие даты</b>");
+                InlineKeyboardMarkup inlineButtons = setInlineButtons("Убрать даты--setBusyDates--Оставить даты--setAvailableDates");
+                answer.setInlineButtons(inlineButtons);
                 answer.setMessage("Найдена встреча <b>" + passphrase + "</b>\n" +
                         printMeeting(passphrase, answer.getMeeting().getUserLocalDate())
                 );
@@ -42,8 +47,6 @@ public class Edit extends Action implements ActionInterface {
             return answer;
         }
     }
-
-
     @Override
     public Answer getResult(Answer answer) {
         String busyDates = answer.getMessage();
@@ -51,10 +54,14 @@ public class Edit extends Action implements ActionInterface {
         if (stringToParseArray.isEmpty()) {
             answer.setMessage("Не распознал числа, повторите, пожалуйста ввод.");
             answer.setQuestion("Введите даты в которые Вы <u><b>НЕ МОЖЕТЕ</b></u> встретиться:");
-            answer.setState("getResult");
-            return answer;
+            answer.setState("Error");
         } else {
-            answer.getMeeting().setDates(busyToAvailableConverter(stringToParseArray, answer.getMeeting().getUserLocalDate()));
+            if (answer.getState().contains("setBusyDates")) {
+                answer.getMeeting().setDates(busyToAvailableConverter(stringToParseArray, answer.getMeeting().getUserLocalDate()));
+            } else {
+                answer.getMeeting().setDates(AvailableConverter(stringToParseArray, answer.getMeeting().getUserLocalDate()));
+
+            }
             boolean isUserOwner = meetingRepository.isUserOwner(answer.getMeeting().getChat(), answer.getMeeting().getPassphrase());
             if (isUserOwner) answer.getMeeting().setOwner(true);
             meetingRepository.deleteByChatAndPassphrase(answer.getMeeting().getChat(), answer.getMeeting().getPassphrase());
@@ -62,21 +69,46 @@ public class Edit extends Action implements ActionInterface {
                     answer.getMeeting().getUserLocalDate().getYear(),
                     answer.getMeeting().getMonth(),
                     answer.getMeeting().getLastDay()));
-            meetingRepository.deleteExpiredMeetings();
-            meetingRepository.save(answer.getMeeting());
-            answer.setMessage("Вы отредактировали даты своего участия во встрече <b>" + answer.getMeeting().getPassphrase() + "</b>: \n" +
-                    printMeeting(answer.getMeeting().getPassphrase(), answer.getMeeting().getUserLocalDate()));
-            answer.setQuestion("Чтобы продолжить, выбери что-нибудь из меню");
-
-            answer.setState("notify");
-            answer.setNotification("<b>" + answer.getMeeting().getName() + "</b> изменил(-а) даты во встрече <b>" + answer.getMeeting().getPassphrase() + "</b>:\n" +
-                    printMeeting(answer.getMeeting().getPassphrase(), answer.getMeeting().getUserLocalDate()));
-            List<String> notifiedStr = meetingRepository.listOfNotified(answer.getMeeting().getPassphrase());
-            for (int i = 0; i < notifiedStr.size(); i++) {
-                answer.getMustBeNotified().add(Long.valueOf(notifiedStr.get(i)));
-            }
-            answer.getMustBeNotified().remove(answer.getMeeting().getChat());
-            return answer;
         }
+        meetingRepository.deleteExpiredMeetings();
+        meetingRepository.save(answer.getMeeting());
+        answer.setMessage("Вы отредактировали даты своего участия во встрече <b>" + answer.getMeeting().getPassphrase() + "</b>: \n" +
+                printMeeting(answer.getMeeting().getPassphrase(), answer.getMeeting().getUserLocalDate()));
+        answer.setQuestion("Чтобы продолжить, выбери что-нибудь из меню");
+
+        answer.setState("notify");
+        answer.setNotification("<b>" + answer.getMeeting().getName() + "</b> изменил(-а) даты во встрече <b>" + answer.getMeeting().getPassphrase() + "</b>:\n" +
+                printMeeting(answer.getMeeting().getPassphrase(), answer.getMeeting().getUserLocalDate()));
+        List<String> notifiedStr = meetingRepository.listOfNotified(answer.getMeeting().getPassphrase());
+        for (int i = 0; i < notifiedStr.size(); i++) {
+            answer.getMustBeNotified().add(Long.valueOf(notifiedStr.get(i)));
+        }
+        answer.getMustBeNotified().remove(answer.getMeeting().getChat());
+        return answer;
+    }
+
+
+    private InlineKeyboardMarkup setInlineButtons(String buttonMetaString) {
+        String[] buttonsMetaArr = buttonMetaString.split("--");
+        List<String> buttonsName = new ArrayList<>();
+        List<String> buttonsCallbackData = new ArrayList<>();
+        for (int i = 0; i < buttonsMetaArr.length; i++) {
+            if (i % 2 == 0) {
+                buttonsName.add(buttonsMetaArr[i]);
+            } else {
+                buttonsCallbackData.add(buttonsMetaArr[i]);
+            }
+        }
+        List<InlineKeyboardButton> buttonsRow = new ArrayList<>();
+        for (int i = 0; i < buttonsMetaArr.length / 2; i++) {
+            InlineKeyboardButton button = new InlineKeyboardButton();
+            button.setText(buttonsName.get(i));
+            button.setCallbackData(buttonsCallbackData.get(i));
+            buttonsRow.add(button);
+        }
+        List<List<InlineKeyboardButton>> rowsOfButton = new ArrayList<>();
+        rowsOfButton.add(buttonsRow);
+        InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup(rowsOfButton);
+        return inlineKeyboardMarkup;
     }
 }

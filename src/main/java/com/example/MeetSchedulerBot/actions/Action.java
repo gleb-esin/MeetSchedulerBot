@@ -159,6 +159,43 @@ public class Action {
         return availableDaysList;
     }
 
+    public List<String> AvailableConverter(List<String> stringToParseArray, LocalDate userLocalDate) {
+
+        //creating availableDaysList
+        List<String> availableDaysList = new ArrayList<>();
+        int firstDayOfMonth = userLocalDate.getDayOfMonth();
+        int monthLength = userLocalDate.lengthOfMonth();
+        String pattern1 = "[-‐‑‒−–⁃۔➖˗﹘Ⲻ]";
+        Pattern regex1 = Pattern.compile(pattern1);
+        Matcher matcher1;
+
+        for (
+                int i = 0; i < stringToParseArray.size(); i++) {
+            String testString = stringToParseArray.get(i);
+            matcher1 = regex1.matcher(testString);
+            //if matcher.Find() therefore this interval
+            if (matcher1.find()) {
+
+                boolean isStartDayHasNotMinValue = Integer.valueOf(stringToParseArray.get(i - 1)) > Integer.valueOf(stringToParseArray.get((i + 1)));
+                int startDay = Integer.parseInt(stringToParseArray.get(i - 1))+1;
+                int endDay = Integer.parseInt(stringToParseArray.get(i + 1)) + 1;
+                if (isStartDayHasNotMinValue) {
+                    startDay = Integer.parseInt(stringToParseArray.get(i + 1))+1;
+                    endDay = Integer.parseInt(stringToParseArray.get(i - 1)) + 1;
+                }
+                for (int j = startDay; j < endDay; j++) {
+                    if (j > monthLength) continue;
+                    availableDaysList.add(String.valueOf(j));
+                }
+            } else {
+                if (Integer.parseInt(stringToParseArray.get(i)) > monthLength) continue;
+                availableDaysList.add(stringToParseArray.get(i));
+            }
+        }
+
+        return availableDaysList;
+    }
+
     public List<String> commonDates(String input) {
         String[] parts = input.split("----");
         List<List<String>> lists = new ArrayList<>();

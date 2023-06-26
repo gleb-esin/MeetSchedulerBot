@@ -6,6 +6,7 @@ import lombok.Setter;
 import lombok.ToString;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,4 +24,5 @@ public class Answer {
     private String question;
     private String notification;
     private List<Long> mustBeNotified = new ArrayList<>();
+    InlineKeyboardMarkup inlineButtons;
 }
