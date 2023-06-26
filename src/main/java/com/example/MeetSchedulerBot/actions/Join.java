@@ -20,6 +20,7 @@ public class Join extends Action implements ActionInterface {
     @Override
     public Answer setMeetingName(Answer answer) {
         String passphrase = answer.getMessage();
+        meetingRepository.deleteExpiredMeetings();
         if (meetingRepository.existsByPassphrase(passphrase)) {
             if (meetingRepository.existsByChatAndPassphrase(answer.getMeeting().getChat(), passphrase)) {
                 answer.setMessage("Вы уже состоите в этой встрече. Чтобы редактировать даты, выберите соответствующий пункт в меню.");
@@ -59,7 +60,6 @@ public class Join extends Action implements ActionInterface {
                     answer.getMeeting().getUserLocalDate().getYear(),
                     answer.getMeeting().getMonth(),
                     answer.getMeeting().getLastDay()));
-            meetingRepository.deleteExpiredMeetings();
             meetingRepository.save(answer.getMeeting());
             answer.setMessage("Вы присоединились к встрече <b>" + answer.getMeeting().getPassphrase() + "</b>: \n" +
                     printMeeting(answer.getMeeting().getPassphrase(), answer.getMeeting().getUserLocalDate()));
