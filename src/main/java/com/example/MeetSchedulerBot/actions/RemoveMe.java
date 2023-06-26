@@ -47,9 +47,10 @@ public class RemoveMe extends Action implements ActionInterface {
         if (answer.getMessage().equalsIgnoreCase("да")) {
             if (meetingRepository.checkPassphraseAndOwner(answer.getMeeting().getPassphrase())) {
                 answer.setState("notify");
-                List<String> notifiedStr = meetingRepository.listOfNotified(answer.getMeeting().getPassphrase());
-                for(int i = 0; i < notifiedStr.size(); i++){
-                    answer.getMustBeNotified().add(Long.valueOf(notifiedStr.get(i)));
+                String notifiedStr = meetingRepository.listOfNotified(answer.getMeeting().getPassphrase());
+                String[] notifiedArr = notifiedStr.split(" ");
+                for (int i = 0; i < notifiedArr.length; i++) {
+                    answer.getMustBeNotified().add(Long.valueOf(notifiedArr[i]));
                 }
                 answer.getMustBeNotified().remove(answer.getMeeting().getChat());
                 Long nextOwner = meetingRepository.whoWillBeNextOwner(answer.getMeeting().getPassphrase());

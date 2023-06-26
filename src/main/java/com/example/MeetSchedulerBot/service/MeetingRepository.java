@@ -1,5 +1,6 @@
 package com.example.MeetSchedulerBot.service;
 
+import com.sun.jna.platform.unix.solaris.LibKstat;
 import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -45,10 +46,8 @@ public interface MeetingRepository extends CrudRepository<Meeting, Long> {
 
     @Query(value = "SELECT STRING_AGG(CAST(m.chat AS VARCHAR), ' ') " +
             "FROM Meeting m " +
-            "WHERE m.passphrase = :passphrase " +
-            "GROUP BY m.edited " +
-            "ORDER BY m.edited DESC", nativeQuery = true)
-    List<String> listOfNotified(@Param("passphrase") String passphrase);
+            "WHERE m.passphrase = :passphrase ", nativeQuery = true)
+    String listOfNotified(@Param("passphrase") String passphrase);
 
     @Query(value = "SELECT m.name FROM Meeting m WHERE m.chat = :chat LIMIT 1", nativeQuery = true)
     String findNameByChat(@Param("chat") Long chat);

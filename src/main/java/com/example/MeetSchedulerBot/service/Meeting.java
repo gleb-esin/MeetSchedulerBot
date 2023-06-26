@@ -35,8 +35,6 @@ public class Meeting {
     @Column
     LocalDate expired;
     private int lastDay;
-    LocalDate edited = LocalDate.now();
-
 
     //need to test
     public void setDates(List<String> availableDaysList) {

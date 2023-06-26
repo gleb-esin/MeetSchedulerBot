@@ -66,10 +66,10 @@ public class Join extends Action implements ActionInterface {
             answer.setQuestion("Чтобы продолжить, выбери что-нибудь из меню");
             answer.setState("notify");
 
-            List<String> notifiedStr = meetingRepository.listOfNotified(answer.getMeeting().getPassphrase());
-            System.out.println("listOfNotified "+meetingRepository.listOfNotified(answer.getMeeting().getPassphrase()));
-            for (int i = 0; i < notifiedStr.size(); i++) {
-                answer.getMustBeNotified().add(Long.valueOf(notifiedStr.get(i)));
+            String notifiedStr = meetingRepository.listOfNotified(answer.getMeeting().getPassphrase());
+            String[] notifiedArr = notifiedStr.split(" ");
+            for (int i = 0; i < notifiedArr.length; i++) {
+                answer.getMustBeNotified().add(Long.valueOf(notifiedArr[i]));
             }
             answer.getMustBeNotified().remove(answer.getMeeting().getChat());
 

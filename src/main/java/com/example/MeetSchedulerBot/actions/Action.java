@@ -14,6 +14,7 @@ import java.util.regex.Pattern;
 public class Action {
     @Autowired
     MeetingRepository meetingRepository;
+
     /**
      * This method performs transformation List with available dates to suitable String for print and add year and name of month .
      *
@@ -82,7 +83,7 @@ public class Action {
     /**
      * This method convert busy dates from user's input to List<String> with available dates.
      *
-     * @param busyDates     - String from user's input with busy dates.
+     * @param busyDates - String from user's input with busy dates.
      * @return List of Strings with available dates.
      */
     public List<String> datesParser(String busyDates) {
@@ -128,10 +129,10 @@ public class Action {
             if (matcher1.find()) {
 
                 boolean isStartDayHasNotMinValue = Integer.valueOf(stringToParseArray.get(i - 1)) > Integer.valueOf(stringToParseArray.get((i + 1)));
-                int startDay = Integer.parseInt(stringToParseArray.get(i - 1))+1;
+                int startDay = Integer.parseInt(stringToParseArray.get(i - 1)) + 1;
                 int endDay = Integer.parseInt(stringToParseArray.get(i + 1)) + 1;
                 if (isStartDayHasNotMinValue) {
-                    startDay = Integer.parseInt(stringToParseArray.get(i + 1))+1;
+                    startDay = Integer.parseInt(stringToParseArray.get(i + 1)) + 1;
                     endDay = Integer.parseInt(stringToParseArray.get(i - 1)) + 1;
                 }
                 for (int j = startDay; j < endDay; j++) {
@@ -177,19 +178,25 @@ public class Action {
             if (matcher1.find()) {
 
                 boolean isStartDayHasNotMinValue = Integer.valueOf(stringToParseArray.get(i - 1)) > Integer.valueOf(stringToParseArray.get((i + 1)));
-                int startDay = Integer.parseInt(stringToParseArray.get(i - 1))+1;
+                int startDay = Integer.parseInt(stringToParseArray.get(i - 1)) + 1;
                 int endDay = Integer.parseInt(stringToParseArray.get(i + 1));
                 if (isStartDayHasNotMinValue) {
-                    startDay = Integer.parseInt(stringToParseArray.get(i + 1))+1;
+                    startDay = Integer.parseInt(stringToParseArray.get(i + 1)) + 1;
                     endDay = Integer.parseInt(stringToParseArray.get(i - 1));
                 }
                 for (int j = startDay; j < endDay; j++) {
-                    if (j > monthLength) continue;
-                    availableDaysList.add(String.valueOf(j));
+                    if (j > monthLength) {
+                        availableDaysList.add(String.valueOf(0));
+                    } else {
+                        availableDaysList.add(String.valueOf(j));
+                    }
                 }
             } else {
-                if (Integer.parseInt(stringToParseArray.get(i)) > monthLength) continue;
-                availableDaysList.add(stringToParseArray.get(i));
+                if (Integer.parseInt(stringToParseArray.get(i)) > monthLength) {
+                    availableDaysList.add(String.valueOf(0));
+                } else {
+                    availableDaysList.add(stringToParseArray.get(i));
+                }
             }
         }
 
@@ -216,13 +223,14 @@ public class Action {
         }
         return commonDates;
     }
+
     /**
      * This method returns meeting.toString with a calendar view.
      *
      * @param passphrase String with passphrase.
      * @return meeting.toString.
      */
-    public String printMeeting(String passphrase,LocalDate userLocalDate) {
+    public String printMeeting(String passphrase, LocalDate userLocalDate) {
         StringBuilder meeting = new StringBuilder();
         meeting.append("Владелец: <b>" + meetingRepository.findOwnerByPassphrase(passphrase));
         meeting.append("</b>\nУчасники: <b>" + meetingRepository.concatenateFirstNamesByPassphrase(passphrase) + "</b>\n");
