@@ -128,8 +128,6 @@ public class Action {
                     startDay = Integer.parseInt(stringToParseArray.get(i + 1)) + 1;
                     endDay = Integer.parseInt(stringToParseArray.get(i - 1));
                 }
-                System.out.println("startDay " + startDay);
-                System.out.println("endDay " + endDay);
                 for (int j = startDay; j < endDay; j++) {
                     if (j > monthLength) continue;
                     parsedDaysList.add(j);
@@ -161,7 +159,6 @@ public class Action {
         for (int i = 1; i <= monthLength; i++) {
             if (i >= firstDayOfMonth) availableDaysList.add(i);
         }
-        System.out.println("native availableDaysList " + availableDaysList);
         for (Integer i : parsedDaysList) {
             availableDaysList.remove(i);
         }
