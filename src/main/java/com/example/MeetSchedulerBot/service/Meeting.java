@@ -22,31 +22,25 @@ public class Meeting {
     private Integer id;
     @Column
     private Long chat;
-    @Column(name = "name")
+    @Column
     private String name;
-    @Column(name = "passphrase")
+    @Column
     private String passphrase;
-    @Column(name = "month")
+    @Column
     private int month;
-    @Column(name = "owner")
+    @Column
     private boolean owner = false;
-    @Column(name = "dates")
-    private String dates;
+    @Column
+    private List<Integer> dates;
     @Column
     LocalDate expired;
-    private int lastDay;
 
     //need to test
-    public void setDates(List<String> availableDaysList) {
-        StringBuilder dates = new StringBuilder();
-        for (int i = 0; i < availableDaysList.size(); i++) {
-            dates.append(availableDaysList.get(i));
-            if (i != availableDaysList.size()-1) {
-                dates.append(", ");
-            }
-            this.lastDay = Integer.valueOf(availableDaysList.get(availableDaysList.size()-1));
-            this.dates = dates.toString();
-        }
+    public void setDates(List<Integer> availableDaysList) {
+        this.dates = availableDaysList;
+        this.expired = LocalDate.of(getUserLocalDate().getYear(),
+                getMonth(),
+                availableDaysList.get(availableDaysList.size() - 1));
     }
 
 
@@ -78,8 +72,4 @@ public class Meeting {
         }
         return userLocalDate;
     }
-
-//    public void setId(Long chatId) {
-//        this.chatId = chatId;
-//    }
 }

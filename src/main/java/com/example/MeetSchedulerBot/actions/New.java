@@ -29,7 +29,7 @@ public class New extends Action implements ActionInterface {
         } else {
             answer.getMeeting().setPassphrase(passphrase);
             var text = "Встреча " + passphrase + " успешно создана!";
-            answer.setQuestion("Введите название месяца");
+            answer.setQuestion("Напечатайте название месяца на руссокм языке (январь, февраль):");
             answer.setState("setMonth");
             answer.setMessage(text);
             return answer;
@@ -55,20 +55,18 @@ public class New extends Action implements ActionInterface {
 
     @Override
     public Answer getResult(Answer answer) {
+        LocalDate userLocaLDate = answer.getMeeting().getUserLocalDate();
         String busyDates = answer.getMessage();
-        List<String> stringToParseArray = datesParser(busyDates);
-        if (stringToParseArray.isEmpty()) {
+        List<Integer> busyDatesList = datesParser(busyDates, userLocaLDate);
+        List<Integer> availabeDatesList = busyToAvailableConverter(busyDatesList, userLocaLDate);
+        if (busyDatesList.isEmpty()) {
             answer.setMessage("Не распознал числа, повторите, пожалуйста ввод.");
             answer.setQuestion("Введите даты в которые Вы <u><b>НЕ МОЖЕТЕ</b></u> встретиться:");
             answer.setState("getResult");
             return answer;
         } else {
-            answer.getMeeting().setDates(busyToAvailableConverter(stringToParseArray, answer.getMeeting().getUserLocalDate()));
-            answer.setMessage(calendarPrinter(busyToAvailableConverter(stringToParseArray, answer.getMeeting().getUserLocalDate()), answer.getMeeting().getUserLocalDate()));
-            answer.getMeeting().setExpired(LocalDate.of(
-                            answer.getMeeting().getUserLocalDate().getYear(),
-                            answer.getMeeting().getMonth(),
-                            answer.getMeeting().getLastDay()));
+            answer.getMeeting().setDates(availabeDatesList);
+            answer.setMessage(calendarPrinter(availabeDatesList, userLocaLDate));
             meetingRepository.deleteExpiredMeetings();
             meetingRepository.save(answer.getMeeting());
             answer.setMessage("Создана встреча <b>" + answer.getMeeting().getPassphrase() + "</b>: " +

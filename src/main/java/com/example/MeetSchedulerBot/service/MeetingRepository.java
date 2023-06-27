@@ -31,8 +31,8 @@ public interface MeetingRepository extends CrudRepository<Meeting, Long> {
     @Query(value = "SELECT STRING_AGG(m.name, ', ') FROM Meeting m WHERE m.passphrase = :passphrase", nativeQuery = true)
     String concatenateFirstNamesByPassphrase(@Param("passphrase") String passphrase);
 
-    @Query(value = "SELECT STRING_AGG(m.dates, '----') FROM Meeting m WHERE m.passphrase = :passphrase", nativeQuery = true)
-    String concatenateDatesByPassphrase(@Param("passphrase") String passphrase);
+    @Query(value = "SELECT m.dates FROM Meeting m WHERE m.passphrase = :passphrase", nativeQuery = true)
+    List<List<Integer>> concatenateDatesByPassphrase(@Param("passphrase") String passphrase);
 
     @Query(value = "SELECT m.chat FROM Meeting m WHERE m.owner = false AND m.passphrase = :passphrase ORDER BY id LIMIT 1", nativeQuery = true)
     Long whoWillBeNextOwner(@Param("passphrase") String passphrase);

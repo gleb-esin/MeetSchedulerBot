@@ -142,16 +142,14 @@ public class TelegramBot extends TelegramLongPollingBot {
             if (update.getCallbackQuery().getData().equals("setBusyDates")) {
                 var chatId = update.getCallbackQuery().getMessage().getChatId();
                 var answer = bindingBy.get(chatId);
-                answer.setQuestion("Введите новые даты в которые Вы <u><b>НЕ МОЖЕТЕ</b></u> встретиться в формате 1 3 7-15:\n" +
-                        "(Если таких дат нет, введите 0)");
+                answer.setQuestion("Введёные даты <u><b>БУДТ УДАЛЕНЫ</b></u>. (Если таких дат нет, введите 0)");
                 answer.setState("getResult setBusyDates");
                 send(chatId, answer.getQuestion());
                 setBindingBy(chatId, answer);
             } else if (update.getCallbackQuery().getData().equals("setAvailableDates")) {
                 var chatId = update.getCallbackQuery().getMessage().getChatId();
                 var answer = bindingBy.get(chatId);
-                answer.setQuestion("Введите даты, которые Вы считаете наиболее <u><b>ПОДХОДЯЩИМИ</b></u> в формате 1 3 7-15:\n" +
-                        "(Чем больше дат Вы отметите, тем с большей вероятностью состоятся встреча)");
+                answer.setQuestion("Остануться <u><b>ТОЛЬКО ВВЕДЁНЫЕ ДАТЫ</b></u>. (Чем больше дат Вы отметите, тем с большей вероятностью состоится встреча)");
                 answer.setState("getResult setAvailableDates");
                 send(chatId, answer.getQuestion());
                 setBindingBy(chatId, answer);
