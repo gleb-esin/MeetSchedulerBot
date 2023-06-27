@@ -29,7 +29,7 @@ public class New extends Action implements ActionInterface {
         } else {
             answer.getMeeting().setPassphrase(passphrase);
             var text = "Встреча " + passphrase + " успешно создана!";
-            answer.setQuestion("Введите название месяца");
+            answer.setQuestion("Напечатайте название месяца на руссокм языке (январь, февраль):");
             answer.setState("setMonth");
             answer.setMessage(text);
             return answer;

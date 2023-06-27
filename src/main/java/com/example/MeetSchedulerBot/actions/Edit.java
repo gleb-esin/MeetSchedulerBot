@@ -23,7 +23,6 @@ public class Edit extends Action implements ActionInterface {
     @Override
     public Answer setMeetingName(Answer answer) {
         String passphrase = answer.getMessage();
-        answer.getMeeting().setMonth(meetingRepository.findMonthByPassphrase(passphrase));
         if (meetingRepository.existsByPassphrase(passphrase)) {
             if (meetingRepository.existsByChatAndPassphrase(answer.getMeeting().getChat(), passphrase)) {
                 answer.getMeeting().setMonth(meetingRepository.findMonthByPassphrase(passphrase));
@@ -58,7 +57,7 @@ public class Edit extends Action implements ActionInterface {
 
         if (dates.isEmpty()) {
             answer.setMessage("Не распознал числа, повторите, пожалуйста ввод.");
-            answer.setQuestion("Введите даты в которые Вы <u><b>НЕ МОЖЕТЕ</b></u> встретиться:");
+            answer.setQuestion("Введите даты в формате 1 3 7-15:\n(Если таких дат нет, введите 0):");
             answer.setState("Error");
             return answer;
         } else {
@@ -69,7 +68,7 @@ public class Edit extends Action implements ActionInterface {
                     answer.getMeeting().setDates(commonDates);
                 } else {
                     answer.setMessage("Не все ваши числа подходят другим учасникам встречи.");
-                    answer.setQuestion("Введите даты из календаря выше, в которые Вы <u><b>НЕ МОЖЕТЕ</b></u> встретиться:");
+                    answer.setQuestion("Введите даты из календаря выше, в которые Вы <u><b>НЕ МОЖЕТЕ</b></u> встретитьсяв формате 1 3 7-15:\n(Если таких дат нет, введите 0):");
                     answer.setState("Error");
                     return answer;
                 }
@@ -78,7 +77,8 @@ public class Edit extends Action implements ActionInterface {
                     answer.getMeeting().setDates(dates);
                 } else {
                     answer.setMessage("Не все ваши числа подходят другим учасникам встречи.");
-                    answer.setQuestion("Введите даты из календаря выше, в которые Вы <u><b>НЕ МОЖЕТЕ</b></u> встретиться:");
+                    answer.setQuestion("Введите даты, которые Вы считаете наиболее <u><b>ПОДХОДЯЩИМИ</b></u> в формате 1 3 7-15:\n" +
+                            "(Чем больше дат Вы отметите, тем с большей вероятностью состоится встреча)");
                     answer.setState("Error");
                     return answer;
                 }
