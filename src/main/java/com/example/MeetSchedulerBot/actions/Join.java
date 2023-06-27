@@ -21,6 +21,7 @@ public class Join extends Action implements ActionInterface {
     public Answer setMeetingName(Answer answer) {
         String passphrase = answer.getMessage();
         Long chat = answer.getMeeting().getChat();
+        answer.getMeeting().setMonth(meetingRepository.findMonthByPassphrase(passphrase));
         LocalDate usersLocalDate = answer.getMeeting().getUserLocalDate();
         if (meetingRepository.existsByPassphrase(passphrase)) {
             if (meetingRepository.existsByChatAndPassphrase(chat, passphrase)) {

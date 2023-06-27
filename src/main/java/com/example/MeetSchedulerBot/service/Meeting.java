@@ -72,8 +72,4 @@ public class Meeting {
         }
         return userLocalDate;
     }
-
-//    public void setId(Long chatId) {
-//        this.chatId = chatId;
-//    }
 }

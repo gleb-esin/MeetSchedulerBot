@@ -25,9 +25,9 @@ public class Action {
 
         // Append the month and year to the calendar string
         String monthName = userLocalDate.getMonth().getDisplayName(TextStyle.FULL_STANDALONE, new Locale("ru"));
-        calendar.append("<code>\n");
+        calendar.append("<code>");
         calendar.append(monthName.substring(0, 1).toUpperCase() + monthName.substring(1)).append(" ").append(userLocalDate.getYear());
-//        calendar.append("\n");
+        calendar.append("\n");
 
         // Append the days of the week to the calendar string
         calendar.append("|  Пн|  Вт|  Ср|  Чт|  Пт|  Сб|  Вс\n");
