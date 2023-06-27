@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import java.time.LocalDate;
 import java.time.format.TextStyle;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.regex.Matcher;
@@ -15,19 +16,11 @@ public class Action {
     @Autowired
     MeetingRepository meetingRepository;
 
-    /**
-     * This method performs transformation List with available dates to suitable String for print and add year and name of month .
-     *
-     * @param dates         List<String> with available dates.
-     * @param userLocalDate user's LocalDate from user.getLocalDate().
-     * @return suitable String for using in printer() method.
-     */
-    public static String calendarPrinter(List<String> dates, LocalDate userLocalDate) {
+    public static String calendarPrinter(List<Integer> availableDates, LocalDate userLocalDate) {
         StringBuilder calendar = new StringBuilder();
 
         // Get the day of the week for the first day of the next month
         int firstDayOfWeek = userLocalDate.getDayOfWeek().getValue() - 1;
-        int firstDayOfMonth = userLocalDate.getDayOfMonth();
         int monthLength = userLocalDate.lengthOfMonth();
 
         // Append the month and year to the calendar string
@@ -45,7 +38,7 @@ public class Action {
         }
         // Append the calendar days
         for (int i = 1; i <= monthLength; i++) {
-            if (!(dates.contains(String.valueOf(i)))) {
+            if (!(availableDates.contains(i))) {
                 calendar.append("|    ");
             } else {
                 if (i < 10) {
@@ -70,113 +63,64 @@ public class Action {
      * @param userLocalDate user's LocalDate from user.getLocalDate().
      * @return List of Strings with whole users' month dates.
      */
-    public static List<String> wholeMonth(LocalDate userLocalDate) {
+    public static List<Integer> wholeMonth(LocalDate userLocalDate) {
         int firstDayOfMonth = userLocalDate.getDayOfMonth();
         int monthLength = userLocalDate.lengthOfMonth();
-        List<String> wholeMonth = new ArrayList<>();
+        List<Integer> wholeMonth = new ArrayList<>();
         for (int day = firstDayOfMonth; day <= monthLength; day++) {
-            wholeMonth.add(String.valueOf(day));
+            wholeMonth.add(day);
         }
         return wholeMonth;
     }
 
     /**
-     * This method convert busy dates from user's input to List<String> with available dates.
+     * This method convert string whith dates from user's input to Listof Integer with free dates.
      *
-     * @param busyDates - String from user's input with busy dates.
-     * @return List of Strings with available dates.
+     * @param inputDates - String from user's input with dates.
+     * @param userLocalDate  - user's LocalDate from answer.getMeeting()
+     * @return List of Integer with dates.
      */
-    public List<String> datesParser(String busyDates) {
-
-        //creating stringToParseArray
+    public static List<Integer> datesParser(String inputDates, LocalDate userLocalDate) {
+        //create List<String> of dates
         List<String> stringToParseArray = new ArrayList<>();
         String pattern = "\\b\\d+|[-‐‑‒−–⁃۔➖˗﹘Ⲻ]";
         Pattern regex = Pattern.compile(pattern);
-        Matcher matcher = regex.matcher(busyDates);
-
+        Matcher matcher = regex.matcher(inputDates);
         while (matcher.find()) {
             String match = matcher.group();
             stringToParseArray.add(match);
         }
-        if (stringToParseArray.size() <= 2) {
-            pattern = "[-‐‑‒−–⁃۔➖˗﹘Ⲻ]";
-            regex = Pattern.compile(pattern);
-            for (int i = 0; i < stringToParseArray.size(); i++) {
-                matcher = regex.matcher(stringToParseArray.get(i));
-                if (matcher.find()) {
-                    stringToParseArray.remove(stringToParseArray.get(i));
+
+        //remove extreme '-'
+        pattern = "[-‐‑‒−–⁃۔➖˗﹘Ⲻ]";
+        regex = Pattern.compile(pattern);
+        matcher = regex.matcher(inputDates);
+        for (int i = 0; i < stringToParseArray.size(); i++) {
+            while (matcher.find()) {
+                String match = matcher.group();
+                // remove '-' from head
+                while (!stringToParseArray.isEmpty() && stringToParseArray.get(0).equals(match)) {
+                    stringToParseArray.remove(0);
+                }
+
+                // remove '-' from tail
+                while (!stringToParseArray.isEmpty() && stringToParseArray.get(stringToParseArray.size() - 1).equals(match)) {
+                    stringToParseArray.remove(stringToParseArray.size() - 1);
                 }
             }
         }
-        return stringToParseArray;
-    }
-
-    public List<String> busyToAvailableConverter(List<String> stringToParseArray, LocalDate userLocalDate) {
-
-        //creating busyDaysList
-        List<String> busyDaysList = new ArrayList<>();
+        List<Integer> parsedDaysList = new ArrayList<>();
         int firstDayOfMonth = userLocalDate.getDayOfMonth();
         int monthLength = userLocalDate.lengthOfMonth();
         String pattern1 = "[-‐‑‒−–⁃۔➖˗﹘Ⲻ]";
         Pattern regex1 = Pattern.compile(pattern1);
         Matcher matcher1;
 
-        for (
-                int i = 0; i < stringToParseArray.size(); i++) {
-            String testString = stringToParseArray.get(i);
+        for(int i = 0; i<stringToParseArray.size();i++){
+            String testString = String.valueOf(stringToParseArray.get(i));
             matcher1 = regex1.matcher(testString);
             //if matcher.Find() therefore this interval
             if (matcher1.find()) {
-
-                boolean isStartDayHasNotMinValue = Integer.valueOf(stringToParseArray.get(i - 1)) > Integer.valueOf(stringToParseArray.get((i + 1)));
-                int startDay = Integer.parseInt(stringToParseArray.get(i - 1)) + 1;
-                int endDay = Integer.parseInt(stringToParseArray.get(i + 1)) + 1;
-                if (isStartDayHasNotMinValue) {
-                    startDay = Integer.parseInt(stringToParseArray.get(i + 1)) + 1;
-                    endDay = Integer.parseInt(stringToParseArray.get(i - 1)) + 1;
-                }
-                for (int j = startDay; j < endDay; j++) {
-                    if (j > monthLength) continue;
-                    busyDaysList.add(String.valueOf(j));
-                }
-            } else {
-                if (Integer.parseInt(stringToParseArray.get(i)) > monthLength) continue;
-                busyDaysList.add(stringToParseArray.get(i));
-            }
-        }
-        //create availableDaysList
-        List<String> availableDaysList = new ArrayList<>();
-        for (
-                int i = 1;
-                i <= monthLength; i++) {
-            if (i >= firstDayOfMonth) availableDaysList.add(String.valueOf(i));
-        }
-
-        for (
-                String i :
-                busyDaysList) {
-            availableDaysList.remove(i);
-        }
-        return availableDaysList;
-    }
-
-    public List<String> AvailableConverter(List<String> stringToParseArray, LocalDate userLocalDate) {
-
-        //creating availableDaysList
-        List<String> availableDaysList = new ArrayList<>();
-//        int firstDayOfMonth = userLocalDate.getDayOfMonth();
-        int monthLength = userLocalDate.lengthOfMonth();
-        String pattern1 = "[-‐‑‒−–⁃۔➖˗﹘Ⲻ]";
-        Pattern regex1 = Pattern.compile(pattern1);
-        Matcher matcher1;
-
-        for (
-                int i = 0; i < stringToParseArray.size(); i++) {
-            String testString = stringToParseArray.get(i);
-            matcher1 = regex1.matcher(testString);
-            //if matcher.Find() therefore this interval
-            if (matcher1.find()) {
-
                 boolean isStartDayHasNotMinValue = Integer.valueOf(stringToParseArray.get(i - 1)) > Integer.valueOf(stringToParseArray.get((i + 1)));
                 int startDay = Integer.parseInt(stringToParseArray.get(i - 1)) + 1;
                 int endDay = Integer.parseInt(stringToParseArray.get(i + 1));
@@ -184,41 +128,50 @@ public class Action {
                     startDay = Integer.parseInt(stringToParseArray.get(i + 1)) + 1;
                     endDay = Integer.parseInt(stringToParseArray.get(i - 1));
                 }
+                System.out.println("startDay " + startDay);
+                System.out.println("endDay " + endDay);
                 for (int j = startDay; j < endDay; j++) {
-                    if (j > monthLength) {
-                        availableDaysList.add(String.valueOf(0));
-                    } else {
-                        availableDaysList.add(String.valueOf(j));
-                    }
+                    if (j > monthLength) continue;
+                    parsedDaysList.add(j);
                 }
+
             } else {
-                if (Integer.parseInt(stringToParseArray.get(i)) > monthLength) {
-                    availableDaysList.add(String.valueOf(0));
-                } else {
-                    availableDaysList.add(stringToParseArray.get(i));
-                }
+                if (Integer.parseInt(stringToParseArray.get(i)) > monthLength) continue;
+                parsedDaysList.add(Integer.parseInt(stringToParseArray.get(i)));
             }
         }
+        Collections.sort(parsedDaysList);
+        return parsedDaysList;
+    }
 
+    /**
+     * If user input busy dates this method will convert available dates from datesParser() to List of Integer with free dates.
+     *
+     * @param parsedDaysList - List of Integer from datesParser().
+     * @param userLocalDate  - user's LocalDate from answer.getMeeting()
+     * @return List of Integer with available dates.
+     */
+    public static List<Integer> busyToAvailableConverter(List<Integer> parsedDaysList, LocalDate userLocalDate) {
+
+        int firstDayOfMonth = userLocalDate.getDayOfMonth();
+        int monthLength = userLocalDate.lengthOfMonth();
+
+        //create availableDaysList
+        List<Integer> availableDaysList = new ArrayList<>();
+        for (int i = 1; i <= monthLength; i++) {
+            if (i >= firstDayOfMonth) availableDaysList.add(i);
+        }
+        System.out.println("native availableDaysList " + availableDaysList);
+        for (Integer i : parsedDaysList) {
+            availableDaysList.remove(i);
+        }
         return availableDaysList;
     }
 
-    public List<String> commonDates(String input) {
-        String[] parts = input.split("----");
-        List<List<String>> lists = new ArrayList<>();
-        for (String part : parts) {
-            String[] numbers = part.split(", ");
-            List<String> innerList = new ArrayList<>();
-            for (String number : numbers) {
-                innerList.add(number);
-            }
-            lists.add(innerList);
-        }
-        ArrayList<String> commonDates = new ArrayList<>();
-        for (String i : lists.get(0)) {
-            commonDates.add(i);
-        }
-        for (int i = 1; i < lists.size(); i++) {
+    public List<Integer> commonDates(List<List<Integer>> lists) {
+        List<Integer> commonDates = new ArrayList<>();
+        commonDates.addAll(lists.get(0));
+        for (int i = 1; i < lists.size(); i++){
             commonDates.retainAll(lists.get(i));
         }
         return commonDates;
@@ -234,10 +187,8 @@ public class Action {
         StringBuilder meeting = new StringBuilder();
         meeting.append("Владелец: <b>" + meetingRepository.findOwnerByPassphrase(passphrase));
         meeting.append("</b>\nУчасники: <b>" + meetingRepository.concatenateFirstNamesByPassphrase(passphrase) + "</b>\n");
-        meeting.append(calendarPrinter(
-                commonDates(meetingRepository.concatenateDatesByPassphrase(passphrase)),
-                userLocalDate
-        ));
+        meeting.append("\nДаты:\n");
+        meeting.append(calendarPrinter(commonDates(meetingRepository.concatenateDatesByPassphrase(passphrase)), userLocalDate));
         meeting.append("\n");
         return meeting.toString();
     }
