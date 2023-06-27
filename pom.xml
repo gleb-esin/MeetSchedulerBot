@@ -68,6 +68,12 @@
 	</scm>
 
 	<build>
+		<resources>
+			<resource>
+				<directory>src/main/resources</directory>
+				<filtering>true</filtering>
+			</resource>
+		</resources>
 		<plugins>
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
@@ -75,15 +81,18 @@
 				<version>1.4</version>
 				<executions>
 					<execution>
-						<phase>validate</phase>
+						<phase>generate-resources</phase>
 						<goals>
 							<goal>create</goal>
 						</goals>
 						<configuration>
 							<doCheck>false</doCheck>
 							<doUpdate>false</doUpdate>
-							<revisionOnScmFailure>unavailable</revisionOnScmFailure>
-							<timestampFormat>{1}</timestampFormat>
+							<revisionOnScmFailure>true</revisionOnScmFailure>
+							<format>{0,number}</format>
+							<items>
+								<item>buildNumber</item>
+							</items>
 						</configuration>
 					</execution>
 				</executions>
