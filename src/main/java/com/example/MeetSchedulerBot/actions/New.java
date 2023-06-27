@@ -59,7 +59,7 @@ public class New extends Action implements ActionInterface {
         String busyDates = answer.getMessage();
         List<Integer> busyDatesList = datesParser(busyDates, userLocaLDate);
         List<Integer> availabeDatesList = busyToAvailableConverter(busyDatesList, userLocaLDate);
-        if (availabeDatesList.isEmpty()) {
+        if (busyDatesList.isEmpty()) {
             answer.setMessage("Не распознал числа, повторите, пожалуйста ввод.");
             answer.setQuestion("Введите даты в которые Вы <u><b>НЕ МОЖЕТЕ</b></u> встретиться:");
             answer.setState("getResult");

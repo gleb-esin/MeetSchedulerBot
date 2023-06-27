@@ -52,7 +52,7 @@ public class Join extends Action implements ActionInterface {
         String busyDates = answer.getMessage();
         List<Integer> busyDatesList = datesParser(busyDates, userLocalDate);
         List<Integer> availabeDatesList = busyToAvailableConverter(busyDatesList, userLocalDate);
-        if (availabeDatesList.isEmpty()) {
+        if (busyDatesList.isEmpty()) {
             answer.setMessage("Не распознал числа, повторите, пожалуйста ввод.");
             answer.setQuestion("Введите даты в которые Вы <u><b>НЕ МОЖЕТЕ</b></u> встретиться:");
             answer.setState("getResult");
