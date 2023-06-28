@@ -30,8 +30,7 @@ public interface MeetingRepository extends CrudRepository<Meeting, Long> {
     @Query(value = "SELECT m.name FROM Meeting m WHERE m.passphrase = :passphrase AND m.owner = true", nativeQuery = true)
     String findOwnerByPassphrase(@Param("passphrase") String passphrase);
 
-    List<Meeting> findByChat (Long chat);
-
+    List<Meeting> findByChatOrderByExpiredAsc(Long chat);
     @Query(value = "SELECT STRING_AGG(m.name, ', ') FROM Meeting m WHERE m.passphrase = :passphrase", nativeQuery = true)
     String concatenateFirstNamesByPassphrase(@Param("passphrase") String passphrase);
 

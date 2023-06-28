@@ -3,9 +3,11 @@ package com.example.MeetSchedulerBot.actions;
 import com.example.MeetSchedulerBot.service.Answer;
 import com.example.MeetSchedulerBot.service.Meeting;
 import org.springframework.context.annotation.Scope;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
 
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 import java.util.Locale;
 
 @Component
@@ -24,8 +26,9 @@ public class MyMeetings extends Action implements ActionInterface {
             StringBuilder meetings = new StringBuilder();
             meetings.append("Найдены следующие встречи:\n\n");
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("LLLL", new Locale("ru"));
+            List<Meeting> meetingList =  meetingRepository.findByChatOrderByExpiredAsc(chat);
             int n = 1;
-            for(Meeting m: meetingRepository.findByChat(chat)){
+            for(Meeting m: meetingList){
                 meetings.append(n + ". ");
                 meetings.append("<b>"+ m.getPassphrase()+ "</b>" + ", ");
                 meetings.append(m.getUserLocalDate().format(formatter) + " ");
