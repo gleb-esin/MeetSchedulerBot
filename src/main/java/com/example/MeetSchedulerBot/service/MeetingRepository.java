@@ -17,6 +17,8 @@ public interface MeetingRepository extends CrudRepository<Meeting, Long> {
 
     boolean existsByChatAndPassphrase(Long chat, String passphrase);
 
+    boolean existsByChat(Long chat);
+
     void deleteByPassphrase(String passphrase);
 
     @Query(value = "SELECT m.owner FROM Meeting m WHERE m.passphrase = :passphrase AND m.chat = :chat", nativeQuery = true)
@@ -28,6 +30,7 @@ public interface MeetingRepository extends CrudRepository<Meeting, Long> {
     @Query(value = "SELECT m.name FROM Meeting m WHERE m.passphrase = :passphrase AND m.owner = true", nativeQuery = true)
     String findOwnerByPassphrase(@Param("passphrase") String passphrase);
 
+    List<Meeting> findByChatOrderByExpiredAsc(Long chat);
     @Query(value = "SELECT STRING_AGG(m.name, ', ') FROM Meeting m WHERE m.passphrase = :passphrase", nativeQuery = true)
     String concatenateFirstNamesByPassphrase(@Param("passphrase") String passphrase);
 
@@ -49,11 +52,8 @@ public interface MeetingRepository extends CrudRepository<Meeting, Long> {
             "WHERE m.passphrase = :passphrase ", nativeQuery = true)
     String listOfNotified(@Param("passphrase") String passphrase);
 
-    @Query(value = "SELECT m.name FROM Meeting m WHERE m.chat = :chat LIMIT 1", nativeQuery = true)
-    String findNameByChat(@Param("chat") Long chat);
-
-
     void deleteByChatAndPassphrase(Long chat, String passphrase);
+
     @Query(value = "SELECT delete_expired_rows_function();", nativeQuery = true)
     void deleteExpiredMeetings();
 }

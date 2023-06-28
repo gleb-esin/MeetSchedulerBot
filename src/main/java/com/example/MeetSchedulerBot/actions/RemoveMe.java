@@ -4,6 +4,7 @@ import com.example.MeetSchedulerBot.service.Answer;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Component
@@ -20,8 +21,9 @@ public class RemoveMe extends Action implements ActionInterface {
     public Answer setMeetingName(Answer answer) {
         meetingRepository.deleteExpiredMeetings();
         String passphrase = answer.getMessage();
+        Long chat = answer.getMeeting().getChat();
         if (meetingRepository.existsByPassphrase(passphrase)) {
-            if (meetingRepository.existsByChatAndPassphrase(answer.getMeeting().getChat(), passphrase)) {
+            if (meetingRepository.existsByChatAndPassphrase(chat, passphrase)) {
                 answer.getMeeting().setMonth(meetingRepository.findMonthByPassphrase(passphrase));
                 answer.getMeeting().setPassphrase(passphrase);
                 answer.setState("getResult");
@@ -45,29 +47,33 @@ public class RemoveMe extends Action implements ActionInterface {
 
     @Override
     public Answer getResult(Answer answer) {
+        String passphrase = answer.getMeeting().getPassphrase();
+        Long chat = answer.getMeeting().getChat();
+        LocalDate userLocalDate = answer.getMeeting().getUserLocalDate();
         if (answer.getMessage().equalsIgnoreCase("да")) {
-            if (meetingRepository.checkPassphraseAndOwner(answer.getMeeting().getPassphrase())) {
+            if (meetingRepository.checkPassphraseAndOwner(passphrase)) {
                 answer.setState("notify");
-                String notifiedStr = meetingRepository.listOfNotified(answer.getMeeting().getPassphrase());
+                String notifiedStr = meetingRepository.listOfNotified(passphrase);
                 String[] notifiedArr = notifiedStr.split(" ");
                 for (int i = 0; i < notifiedArr.length; i++) {
                     answer.getMustBeNotified().add(Long.valueOf(notifiedArr[i]));
                 }
-                answer.getMustBeNotified().remove(answer.getMeeting().getChat());
-                Long nextOwner = meetingRepository.whoWillBeNextOwner(answer.getMeeting().getPassphrase());
-                meetingRepository.setNextOwner(nextOwner, answer.getMeeting().getPassphrase());
-                meetingRepository.deleteByChatAndPassphrase(answer.getMeeting().getChat(), answer.getMeeting().getPassphrase());
+                answer.getMustBeNotified().remove(chat);
+                Long nextOwner = meetingRepository.whoWillBeNextOwner(passphrase);
+                meetingRepository.setNextOwner(nextOwner, passphrase);
+                meetingRepository.deleteByChatAndPassphrase(chat, passphrase);
 
-                answer.setNotification("<b>"+answer.getMeeting().getName() + "</b> не захотел(-а) участвовать в вашей встрече <b>" + answer.getMeeting().getPassphrase()+ "</b>:\n" +
-                        printMeeting(answer.getMeeting().getPassphrase(), answer.getMeeting().getUserLocalDate())+
+                answer.setNotification("<b>"+answer.getMeeting().getName() + "</b> не захотел(-а) участвовать в вашей встрече <b>" + passphrase+ "</b>:\n" +
+                        printMeeting(passphrase, userLocalDate)+
                         "Но можно пригласить кого-нибудь еще.");
-                answer.setMessage("Вы удалили свое участие во встрече <b>" + answer.getMeeting().getPassphrase() + "</b>: \n" +
-                        printMeeting(answer.getMeeting().getPassphrase(), answer.getMeeting().getUserLocalDate()));
+                answer.setMessage("Вы удалили свое участие во встрече <b>" + passphrase + "</b>: \n" +
+                        printMeeting(passphrase, userLocalDate));
             }else{
-                answer.setMessage("Вы удалили свою встречу <b>" + answer.getMeeting().getPassphrase() + "</b>. \n" +
+                meetingRepository.deleteByChatAndPassphrase(chat, passphrase);
+                answer.setMessage("Вы удалили свою встречу <b>" + passphrase + "</b>. \n" +
                         "Но надо будет как-нибудь создать новую.");
             }
-            answer.setQuestion("Чтобы продолжить, выбери что-нибудь из меню");
+            answer.setQuestion("Чтобы продолжить, выбери что-нибудь из меню.");
 
             return answer;
         } else if (answer.getMessage().equalsIgnoreCase("нет")) {

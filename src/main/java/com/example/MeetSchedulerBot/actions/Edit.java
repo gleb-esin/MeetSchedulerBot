@@ -91,7 +91,7 @@ public class Edit extends Action implements ActionInterface {
         meetingRepository.save(answer.getMeeting());
         answer.setMessage("Вы отредактировали даты своего участия во встрече <b>" + answer.getMeeting().getPassphrase() + "</b>: \n" +
                 printMeeting(passphrase, userLocalDate));
-        answer.setQuestion("Чтобы продолжить, выбери что-нибудь из меню");
+        answer.setQuestion("Чтобы продолжить, выбери что-нибудь из меню.");
 
         answer.setState("notify");
         answer.setNotification("<b>" + answer.getMeeting().getName() + "</b> изменил(-а) даты во встрече <b>" + answer.getMeeting().getPassphrase() + "</b>:\n" +

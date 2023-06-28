@@ -29,7 +29,7 @@ public class New extends Action implements ActionInterface {
         } else {
             answer.getMeeting().setPassphrase(passphrase);
             var text = "Встреча " + passphrase + " успешно создана!";
-            answer.setQuestion("Напечатайте название месяца на руссокм языке (январь, февраль):");
+            answer.setQuestion("Напечатайте название месяца на русском языке (январь, февраль):");
             answer.setState("setMonth");
             answer.setMessage(text);
             return answer;
@@ -76,7 +76,7 @@ public class New extends Action implements ActionInterface {
                     "Помни, что название  - ключ к вашей встрече. " +
                     "Пересылай название этой встречи, только тем, кого хочешь пригласть на эту встречу.\n" +
                     "Чтобы пригласить кого-нибудь просто прешли им это сообщение:");
-            answer.setQuestion("Чтобы продолжить, выбери что-нибудь из меню");
+            answer.setQuestion("Чтобы продолжить, выбери что-нибудь из меню.");
             answer.setState("notify");
             answer.setNotification("Привет, это <b>" + answer.getMeeting().getName() + "</b>! Присоединяйся к моей встрече " +
                     "<b>" + answer.getMeeting().getPassphrase() + "</b>" +
