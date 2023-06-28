@@ -12,7 +12,7 @@ import java.util.List;
 
 @Transactional
 @Repository
-public interface MeetingRepository extends CrudRepository<Meeting, Long> {work
+public interface MeetingRepository extends CrudRepository<Meeting, Long> {
     boolean existsByPassphrase(String passphrase);
 
     boolean existsByChatAndPassphrase(Long chat, String passphrase);
