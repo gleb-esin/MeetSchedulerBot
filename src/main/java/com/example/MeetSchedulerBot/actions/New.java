@@ -76,7 +76,7 @@ public class New extends Action implements ActionInterface {
                     "Помни, что название  - ключ к вашей встрече. " +
                     "Пересылай название этой встречи, только тем, кого хочешь пригласть на эту встречу.\n" +
                     "Чтобы пригласить кого-нибудь просто прешли им это сообщение:");
-            answer.setQuestion("Чтобы продолжить, выбери что-нибудь из меню");
+            answer.setQuestion("Чтобы продолжить, выбери что-нибудь из меню.");
             answer.setState("notify");
             answer.setNotification("Привет, это <b>" + answer.getMeeting().getName() + "</b>! Присоединяйся к моей встрече " +
                     "<b>" + answer.getMeeting().getPassphrase() + "</b>" +

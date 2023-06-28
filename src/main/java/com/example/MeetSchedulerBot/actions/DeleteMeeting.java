@@ -57,7 +57,7 @@ public class DeleteMeeting extends Action implements ActionInterface {
             answer.setState("notify");
             answer.setMessage("Вы удалили свою встречу <b>" + answer.getMeeting().getPassphrase() + "</b>. \n" +
                     "Но надо будет как-нибудь создать новую.");
-            answer.setQuestion("Чтобы продолжить, выбери что-нибудь из меню");
+            answer.setQuestion("Чтобы продолжить, выбери что-нибудь из меню.");
             answer.setNotification("<b>"+answer.getMeeting().getName() + "</b> удалил(-а) вашу встречу <b>" + answer.getMeeting().getPassphrase()+ "</b>.\n" +
                     "Но можно создать свою.");
             return answer;

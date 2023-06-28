@@ -67,7 +67,7 @@ public class RemoveMe extends Action implements ActionInterface {
                 answer.setMessage("Вы удалили свою встречу <b>" + answer.getMeeting().getPassphrase() + "</b>. \n" +
                         "Но надо будет как-нибудь создать новую.");
             }
-            answer.setQuestion("Чтобы продолжить, выбери что-нибудь из меню");
+            answer.setQuestion("Чтобы продолжить, выбери что-нибудь из меню.");
 
             return answer;
         } else if (answer.getMessage().equalsIgnoreCase("нет")) {

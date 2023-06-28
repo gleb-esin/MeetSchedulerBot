@@ -68,7 +68,7 @@ public class Join extends Action implements ActionInterface {
             meetingRepository.save(answer.getMeeting());
             answer.setMessage("Вы присоединились к встрече <b>" + answer.getMeeting().getPassphrase() + "</b>: \n" +
                     printMeeting(answer.getMeeting().getPassphrase(), answer.getMeeting().getUserLocalDate()));
-            answer.setQuestion("Чтобы продолжить, выбери что-нибудь из меню");
+            answer.setQuestion("Чтобы продолжить, выбери что-нибудь из меню.");
             answer.setState("notify");
             String notifiedStr = meetingRepository.listOfNotified(answer.getMeeting().getPassphrase());
             String[] notifiedArr = notifiedStr.split(" ");

@@ -24,7 +24,7 @@ public class Find extends Action implements ActionInterface {
                 answer.setMessage("Найдена встреча <b>" + passphrase + "</b>\n" +
                         printMeeting(passphrase, answer.getMeeting().getUserLocalDate())
                 );
-                answer.setQuestion("Чтобы продолжить, выбери что-нибудь из меню");
+                answer.setQuestion("Чтобы продолжить, выбери что-нибудь из меню.");
                 answer.setState("finnish");
                 return answer;
             } else {

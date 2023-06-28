@@ -4,7 +4,6 @@ import com.example.MeetSchedulerBot.actions.*;
 import com.example.MeetSchedulerBot.config.BotConfig;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.ParseMode;
@@ -24,8 +23,8 @@ import java.util.concurrent.ConcurrentHashMap;
 public class TelegramBot extends TelegramLongPollingBot {
     private Map<Long, Answer> bindingBy = new ConcurrentHashMap<>();
     @Autowired
-    private List<ActionInterface> actionBeans = new ArrayList<>(Arrays.asList(new New(), new Join(), new Find(), new Edit(), new RemoveMe(), new DeleteMeeting(), new Feedback()));
-    private final List<String> actions = Arrays.asList("/new", "/join", "/find", "/edit", "/removeme", "/deletemeeting", "/feedback");
+    private List<ActionInterface> actionBeans = new ArrayList<>(Arrays.asList(new New(), new Join(), new Find(), new MyMeetings(), new Edit(), new RemoveMe(), new DeleteMeeting(), new Feedback()));
+    private final List<String> actions = Arrays.asList("/new", "/join", "/find", "/mymeetings", "/edit", "/removeme", "/deletemeeting", "/feedback");
     private String state;
     private final BotConfig config;
 
@@ -35,6 +34,7 @@ public class TelegramBot extends TelegramLongPollingBot {
         menu.add(new BotCommand("/new", "Создание новой встечи"));
         menu.add(new BotCommand("/join", "Присоединисться"));
         menu.add(new BotCommand("/find", "Найти встречу"));
+        menu.add(new BotCommand("/mymeetings", "Найти все свои встречи"));
         menu.add(new BotCommand("/edit", "Редактировать даты"));
         menu.add(new BotCommand("/removeme", "Удалить свое участие"));
         menu.add(new BotCommand("/deletemeeting", "Удалить свою встречу"));
@@ -60,9 +60,9 @@ public class TelegramBot extends TelegramLongPollingBot {
                         "Встречайтесь чаще!" +
                         "\n\n" +
                         "Данный бот хранит и использует для организации встреч Ваш chatID и имя, узказанное в Вашем профиле. Эти данные автоматически удаляются по прошествии встречи. " +
-                                "Тем не меннее, Вы в любой момент можете удалить эти данные, выбрав соответствующие пункты меню (\"Удалить мое участие\" и \"Удалить свою встречу\")." +
-                                "\nПродолжая работу с данным ботом, Вы выражаете свое согласие на обработку и хранение Ваших персональных данных.\n" +
-                                "Чтобы отказаться от обработки и хранения Ваших персональных данных, просто удалите этот чат с ботом из меню чата.");
+                        "Тем не меннее, Вы в любой момент можете удалить эти данные, выбрав соответствующие пункты меню (\"Удалить мое участие\" и \"Удалить свою встречу\")." +
+                        "\nПродолжая работу с данным ботом, Вы выражаете свое согласие на обработку и хранение Ваших персональных данных.\n" +
+                        "Чтобы отказаться от обработки и хранения Ваших персональных данных, просто удалите этот чат с ботом из меню чата.");
 
                 //if user's usersMessage contains some menu command
             } else if (actions.contains(usersMessage)) {
@@ -77,13 +77,22 @@ public class TelegramBot extends TelegramLongPollingBot {
                 if (usersMessage.equals("/feedback")) {
                     send(chatId, "Напишите Ваши вопросы, предложения, замечания:");
                     answer.setState("getResult");
-
+                } else if (usersMessage.equals("/mymeetings")) {
+                    answer.setState("getResult");
                 } else {
                     send(chatId, "Введите название встречи:");
                     answer.setState("setMeetingName");
                 }
                 //save user state and action
                 setBindingBy(chatId, answer);
+                if (usersMessage.equals("/mymeetings")) {
+                    answer = bindingBy.get(chatId);
+                    answer.setMessage(usersMessage);
+                    answer = answer.getAction().getResult(answer);
+                    send(chatId, answer.getMessage());
+                    send(chatId, answer.getQuestion());
+                    bindingBy.remove(chatId);
+                }
                 //if user already send some command
             } else if (bindingBy.containsKey(chatId)) {
                 //update
@@ -125,8 +134,7 @@ public class TelegramBot extends TelegramLongPollingBot {
                     if (answer.getState().equals("Error")) {
                         send(chatId, answer.getQuestion());
                         answer.setState("getResult");
-                    }
-                    if (answer.getState().equals("notify")) {
+                    } else if (answer.getState().equals("notify")) {
                         for (Long l : answer.getMustBeNotified()) {
                             send(l, answer.getNotification());
                         }
