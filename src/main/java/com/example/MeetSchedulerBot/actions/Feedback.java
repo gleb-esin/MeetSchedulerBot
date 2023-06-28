@@ -1,12 +1,15 @@
 package com.example.MeetSchedulerBot.actions;
 
 import com.example.MeetSchedulerBot.service.Answer;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 @Component
 @Scope("prototype")
 public class Feedback implements ActionInterface {
+    @Value("${feedbackChatID}")
+    private Long feedbackChatID;
 
     @Override
     public String getActionKey() {
@@ -22,7 +25,7 @@ public class Feedback implements ActionInterface {
                 "</b>:\n" +
                 answer.getMessage());
         answer.setState("notify");
-        answer.getMustBeNotified().add(353006279L);
+        answer.getMustBeNotified().add(feedbackChatID);
 /**DEBUG*/System.out.println(" answer.getMustBeNotified() " + answer.getMustBeNotified());
         answer.setMessage("Спасибо за Ваш отзыв!");
         answer.setQuestion("Чтобы продолжить, выбери что-нибудь из меню");
