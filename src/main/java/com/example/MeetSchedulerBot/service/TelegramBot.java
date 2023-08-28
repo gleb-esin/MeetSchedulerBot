@@ -52,6 +52,7 @@ public class TelegramBot extends TelegramLongPollingBot {
         if (update.hasMessage() && update.getMessage().hasText()) {
             Long chatId = update.getMessage().getChatId();
             String usersMessage = update.getMessage().getText();
+            log.info("Reply to chatID: " + chatId+ ", name: " + update.getMessage().getChat().getFirstName());
             if (update.getMessage().getText().equals("/start")) {
                 send(chatId, "Данный  бот помогает выбрать общие даты при планировании встречи. Участникам предлагается ввести даты, когда, по их мнению, встреча не возможна. Оставшиеся даты считаются приемлемым для всех. Если дат осталось слишком много, по желанию участников, можно отредактировать свои даты, сузив число конечных дат. \n\n" +
                         "Бот позволяет создавать новые встречи, присоединяться к уже существующим встречам, редактировать даты в уже существующей встрече, удалять свое участие и те встречи, владельцем которых является пользователь.\n\n" +
@@ -172,14 +173,13 @@ public class TelegramBot extends TelegramLongPollingBot {
     private void setBindingBy(Long chatID, Answer answer) {
         this.bindingBy.put(chatID, answer);
     }
-
     public void send(Long chatId, String text) {
         SendMessage message = new SendMessage(chatId.toString(), text);
         message.setParseMode(ParseMode.HTML);
         try {
             execute(message);
         } catch (TelegramApiException e) {
-            e.printStackTrace();
+            log.error("send(" + chatId + text + ")" + e.getMessage(),e.getStackTrace());
         }
     }
 
@@ -190,7 +190,7 @@ public class TelegramBot extends TelegramLongPollingBot {
         try {
             execute(message);
         } catch (TelegramApiException e) {
-            e.printStackTrace();
+            log.error(("sendInlineMarkup(" + chatId + text + "inlineKeyboardMarkup)" + e.getMessage()), e.getStackTrace());
         }
     }
 

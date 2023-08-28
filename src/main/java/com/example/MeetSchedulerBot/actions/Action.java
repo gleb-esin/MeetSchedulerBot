@@ -1,7 +1,9 @@
 package com.example.MeetSchedulerBot.actions;
 
 import com.example.MeetSchedulerBot.service.MeetingRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
 
 import java.time.LocalDate;
 import java.time.format.TextStyle;
@@ -11,6 +13,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+@Slf4j
 
 public class Action {
     @Autowired
@@ -20,7 +23,7 @@ public class Action {
         StringBuilder calendar = new StringBuilder();
 
         // Get the day of the week for the first day of the next month
-        int firstDayOfWeek = userLocalDate.getDayOfWeek().getValue() - 1;
+        int firstDayOfWeek = userLocalDate.getDayOfWeek().getValue() == 1? userLocalDate.getDayOfWeek().getValue(): userLocalDate.getDayOfWeek().getValue()-1;
         int monthLength = userLocalDate.lengthOfMonth();
 
         // Append the month and year to the calendar string
@@ -110,7 +113,6 @@ public class Action {
             }
         }
         List<Integer> parsedDaysList = new ArrayList<>();
-        int firstDayOfMonth = userLocalDate.getDayOfMonth();
         int monthLength = userLocalDate.lengthOfMonth();
         String pattern1 = "[-‐‑‒−–⁃۔➖˗﹘Ⲻ]";
         Pattern regex1 = Pattern.compile(pattern1);
@@ -150,11 +152,8 @@ public class Action {
      * @return List of Integer with available dates.
      */
     public static List<Integer> busyToAvailableConverter(List<Integer> parsedDaysList, LocalDate userLocalDate) {
-
         int firstDayOfMonth = userLocalDate.getDayOfMonth();
         int monthLength = userLocalDate.lengthOfMonth();
-
-        //create availableDaysList
         List<Integer> availableDaysList = new ArrayList<>();
         for (int i = 1; i <= monthLength; i++) {
             if (i >= firstDayOfMonth) availableDaysList.add(i);
@@ -182,10 +181,22 @@ public class Action {
      */
     public String printMeeting(String passphrase, LocalDate userLocalDate) {
         StringBuilder meeting = new StringBuilder();
-        meeting.append("Владелец: <b>" + meetingRepository.findOwnerByPassphrase(passphrase));
-        meeting.append("</b>\nУчасники: <b>" + meetingRepository.concatenateFirstNamesByPassphrase(passphrase) + "</b>\n");
+        try {
+            meeting.append("Владелец: <b>" + meetingRepository.findOwnerByPassphrase(passphrase));
+        }catch (DataAccessException e){
+            log.error("findOwnerByPassphrase(passphrase) "+e.getMessage());
+        }
+        try {
+            meeting.append("</b>\nУчасники: <b>" + meetingRepository.concatenateFirstNamesByPassphrase(passphrase) + "</b>\n");
+        } catch (DataAccessException e){
+            log.error("concatenateFirstNamesByPassphrase(passphrase) " + e.getMessage());
+        }
         meeting.append("\nДаты:\n");
-        meeting.append(calendarPrinter(commonDates(meetingRepository.concatenateDatesByPassphrase(passphrase)), userLocalDate));
+        try {
+            meeting.append(calendarPrinter(commonDates(meetingRepository.concatenateDatesByPassphrase(passphrase)), userLocalDate));
+        }  catch (DataAccessException e){
+           log.error("concatenateDatesByPassphrase(passphrase) " + e.getMessage());
+        }
         meeting.append("\n");
         return meeting.toString();
     }

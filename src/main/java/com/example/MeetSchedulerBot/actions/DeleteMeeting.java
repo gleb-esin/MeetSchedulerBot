@@ -1,11 +1,11 @@
 package com.example.MeetSchedulerBot.actions;
 
 import com.example.MeetSchedulerBot.service.Answer;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
-
+@Slf4j
 @Component
 @Scope("prototype")
 public class DeleteMeeting extends Action implements ActionInterface {

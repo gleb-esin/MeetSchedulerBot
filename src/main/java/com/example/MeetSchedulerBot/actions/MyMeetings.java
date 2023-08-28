@@ -21,6 +21,7 @@ public class MyMeetings extends Action implements ActionInterface {
 
     @Override
     public Answer getResult(Answer answer) {
+        meetingRepository.deleteExpiredMeetings();
         Long chat = answer.getMeeting().getChat();
         if (meetingRepository.existsByChat(chat)){
             StringBuilder meetings = new StringBuilder();

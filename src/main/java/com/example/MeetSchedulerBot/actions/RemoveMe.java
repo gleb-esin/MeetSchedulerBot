@@ -47,6 +47,7 @@ public class RemoveMe extends Action implements ActionInterface {
 
     @Override
     public Answer getResult(Answer answer) {
+        meetingRepository.deleteExpiredMeetings();
         String passphrase = answer.getMeeting().getPassphrase();
         Long chat = answer.getMeeting().getChat();
         LocalDate userLocalDate = answer.getMeeting().getUserLocalDate();

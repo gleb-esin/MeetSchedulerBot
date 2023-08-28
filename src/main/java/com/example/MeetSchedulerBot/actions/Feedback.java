@@ -26,7 +26,6 @@ public class Feedback implements ActionInterface {
                 answer.getMessage());
         answer.setState("notify");
         answer.getMustBeNotified().add(feedbackChatID);
-/**DEBUG*/System.out.println(" answer.getMustBeNotified() " + answer.getMustBeNotified());
         answer.setMessage("Спасибо за Ваш отзыв!");
         answer.setQuestion("Чтобы продолжить, выбери что-нибудь из меню.");
         return answer;
