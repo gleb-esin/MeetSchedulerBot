@@ -21,9 +21,10 @@ public class Action {
 
     public static String calendarPrinter(List<Integer> availableDates, LocalDate userLocalDate) {
         StringBuilder calendar = new StringBuilder();
-
+        int firstAvailableDay = availableDates.get(0);
+        userLocalDate = userLocalDate.plusDays(firstAvailableDay - 1);
         // Get the day of the week for the first day of the next month
-        int firstDayOfWeek = userLocalDate.getDayOfWeek().getValue() == 1? userLocalDate.getDayOfWeek().getValue(): userLocalDate.getDayOfWeek().getValue()-1;
+        int firstDayOfWeek = userLocalDate.getDayOfWeek().getValue();
         int monthLength = userLocalDate.lengthOfMonth();
 
         // Append the month and year to the calendar string
