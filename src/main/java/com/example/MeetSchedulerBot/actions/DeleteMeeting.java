@@ -20,6 +20,7 @@ public class DeleteMeeting extends Action implements ActionInterface {
     public Answer setMeetingName(Answer answer) {
         String passphrase = answer.getMessage();
         meetingRepository.deleteExpiredMeetings();
+        meetingRepository.deletePastDate();
         if (meetingRepository.existsByPassphrase(passphrase)) {
             if (meetingRepository.existsByChatAndPassphrase(answer.getMeeting().getChat(), passphrase) && meetingRepository.isUserOwner(answer.getMeeting().getChat(), passphrase)) {
                 answer.getMeeting().setMonth(meetingRepository.findMonthByPassphrase(passphrase));

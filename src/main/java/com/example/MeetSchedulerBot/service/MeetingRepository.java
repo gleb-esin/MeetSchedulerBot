@@ -1,6 +1,5 @@
 package com.example.MeetSchedulerBot.service;
 
-import com.sun.jna.platform.unix.solaris.LibKstat;
 import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -56,4 +55,7 @@ public interface MeetingRepository extends CrudRepository<Meeting, Long> {
 
     @Query(value = "SELECT delete_expired_rows_function();", nativeQuery = true)
     void deleteExpiredMeetings();
+
+    @Query(value = "SELECT delete_past_dates_in_current_month();", nativeQuery = true)
+    void deletePastDate();
 }

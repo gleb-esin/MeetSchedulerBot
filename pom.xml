@@ -10,12 +10,11 @@
 	</parent>
 	<groupId>com.example</groupId>
 	<artifactId>MeetSchedulerBot</artifactId>
-	<version>build-${buildNumber}</version>
+	<version>1.2</version>
 	<name>MeetSchedulerBot</name>
 	<description>MeetSchedulerBot</description>
 	<properties>
 		<java.version>17</java.version>
-		<maven.buildInfo>build-${buildNumber}</maven.buildInfo>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -56,12 +55,6 @@
 		</dependency>
 
 		<dependency>
-			<groupId>org.codehaus.mojo</groupId>
-			<artifactId>buildnumber-maven-plugin</artifactId>
-			<version>3.1.0</version>
-		</dependency>
-
-		<dependency>
 			<groupId>ch.qos.logback</groupId>
 			<artifactId>logback-core</artifactId>
 		</dependency>
@@ -78,13 +71,8 @@
 		</dependency>
 	</dependencies>
 
-	<scm>
-		<connection>scm:git:git@github.com:gleb-esin/\MeetScheduleBot.git</connection>
-		<developerConnection>scm:it:git@github.com:gleb-esin/\MeetScheduleBot.git</developerConnection>
-		<url>scm:git:git@github.com:gleb-esin/\MeetScheduleBot.git</url>
-	</scm>
-
 	<build>
+		<finalName>${project.artifactId}</finalName>
 		<resources>
 			<resource>
 				<directory>src/main/resources</directory>
@@ -92,28 +80,6 @@
 			</resource>
 		</resources>
 		<plugins>
-			<plugin>
-				<groupId>org.codehaus.mojo</groupId>
-				<artifactId>buildnumber-maven-plugin</artifactId>
-				<version>1.4</version>
-				<executions>
-					<execution>
-						<phase>generate-resources</phase>
-						<goals>
-							<goal>create</goal>
-						</goals>
-						<configuration>
-							<doCheck>false</doCheck>
-							<doUpdate>false</doUpdate>
-							<revisionOnScmFailure>true</revisionOnScmFailure>
-							<format>{0,number}</format>
-							<items>
-								<item>buildNumber</item>
-							</items>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>

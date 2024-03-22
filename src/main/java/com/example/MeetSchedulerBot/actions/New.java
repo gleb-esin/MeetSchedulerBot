@@ -68,6 +68,7 @@ public class New extends Action implements ActionInterface {
             answer.getMeeting().setDates(availabeDatesList);
             answer.setMessage(calendarPrinter(availabeDatesList, userLocaLDate));
             meetingRepository.deleteExpiredMeetings();
+            meetingRepository.deletePastDate();
             meetingRepository.save(answer.getMeeting());
             answer.setMessage("Создана встреча <b>" + answer.getMeeting().getPassphrase() + "</b>: " +
                     "\n" +

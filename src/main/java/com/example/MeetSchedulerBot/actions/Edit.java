@@ -88,6 +88,7 @@ public class Edit extends Action implements ActionInterface {
         if (isUserOwner) answer.getMeeting().setOwner(true);
         meetingRepository.deleteByChatAndPassphrase(chat, passphrase);
         meetingRepository.deleteExpiredMeetings();
+        meetingRepository.deletePastDate();
         meetingRepository.save(answer.getMeeting());
         answer.setMessage("Вы отредактировали даты своего участия во встрече <b>" + answer.getMeeting().getPassphrase() + "</b>: \n" +
                 printMeeting(passphrase, userLocalDate));
