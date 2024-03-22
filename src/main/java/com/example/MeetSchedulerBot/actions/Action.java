@@ -21,8 +21,8 @@ public class Action {
 
     public static String calendarPrinter(List<Integer> availableDates, LocalDate userLocalDate) {
         StringBuilder calendar = new StringBuilder();
-        int firstAvailableDay = availableDates.get(0);
-        userLocalDate = userLocalDate.plusDays(firstAvailableDay - 1);
+//        int firstAvailableDay = availableDates.get(0);
+//        userLocalDate = userLocalDate.plusDays(firstAvailableDay - 1);
         // Get the day of the week for the first day of the next month
         int firstDayOfWeek = userLocalDate.getDayOfWeek().getValue();
         int monthLength = userLocalDate.lengthOfMonth();
@@ -37,8 +37,12 @@ public class Action {
         calendar.append("|  Пн|  Вт|  Ср|  Чт|  Пт|  Сб|  Вс\n");
 
         // Append the empty spaces for the days before the first day of the next month
-        for (int i = 1; i <= firstDayOfWeek; i++) {
+        for (int i = 2; i <= firstDayOfWeek; i++) {
             calendar.append("     ");
+            //fixme DEBUG
+            System.out.println("\u001B[93mDEBUG "+Thread.currentThread().getStackTrace()[1].getClassName().substring(Thread.currentThread().getStackTrace()[1].getClassName().lastIndexOf(".") + 1) +"."+ Thread.currentThread().getStackTrace()[1].getMethodName() + "(): \u001B[0m"
+                    + "Empty day of week # " + i);
+            //
         }
         // Append the calendar days
         for (int i = 1; i <= monthLength; i++) {
@@ -51,7 +55,7 @@ public class Action {
                     calendar.append("|  " + i);
                 }
             }
-            if ((i + firstDayOfWeek) % 7 == 0) {
+            if ((i + firstDayOfWeek-1) % 7 == 0) {
                 calendar.append("\n");
             }
         }
