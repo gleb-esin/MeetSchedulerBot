@@ -1,4 +1,4 @@
-package com.example.MeetSchedulerBot;
+package com.example.meetSchedulerBot;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

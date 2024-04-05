@@ -1,6 +1,6 @@
-package com.example.MeetSchedulerBot.service;
+package com.example.meetSchedulerBot.service;
 
-import com.example.MeetSchedulerBot.actions.ActionInterface;
+import com.example.meetSchedulerBot.actions.ActionInterface;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
