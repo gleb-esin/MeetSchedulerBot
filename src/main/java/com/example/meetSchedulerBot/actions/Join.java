@@ -71,6 +71,4 @@ public class Join extends Action implements ActionInterface {
         }
         return false;
     }
-
-
 }
