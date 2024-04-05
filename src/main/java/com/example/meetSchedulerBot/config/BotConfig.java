@@ -1,5 +1,4 @@
-package com.example.MeetSchedulerBot.config;
-
+package com.example.meetSchedulerBot.config;
 
 
 import lombok.Data;
@@ -11,9 +10,10 @@ import org.springframework.context.annotation.PropertySource;
 @Data
 @PropertySource("application.properties")
 public class BotConfig {
-
-   @Value("${bot.name}")
-   String botName;
-   @Value("${bot.token}")
-    String token;
+    @Value("${webhookpath}")
+    String webHookPath;
+    @Value("${bot.name}")
+    String userName;
+    @Value("${bot.token}")
+    String botToken;
 }
