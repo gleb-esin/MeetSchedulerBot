@@ -16,6 +16,8 @@ public class Find extends Action implements ActionInterface {
 
     @Override
     public void run(Message message) {
+        meetingRepository.deleteExpiredMeetings();
+        meetingRepository.deletePastDate();
         Meeting meeting = findMeeting(message);
         if (ifMeetingIsFound(meeting)) {
             messageService.sendMessageTo(message.getChatId(), "Найдена встреча: ");

@@ -75,7 +75,7 @@ public class New extends Action implements ActionInterface {
 
     private void sendLink(Long chatId, Meeting meeting) {
         messageService.sendMessageTo(chatId, "Чтобы пригласить кого-нибудь просто прешли им это сообщение:");
-        String description = "Присоединяйся к моей встрече";
+        String description = "Присоединяйся к моей встрече " + meeting.getPassphrase();
         String link = linkCreator(meeting, description);
         messageService.sendMessageTo(chatId, "Привет, это <b>" + meeting.getName() + "</b>! " + link+ " через @MeetSchedulerbot!");
     }
