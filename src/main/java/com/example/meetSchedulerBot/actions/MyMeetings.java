@@ -19,6 +19,8 @@ public class MyMeetings extends Action implements ActionInterface {
     @Override
     public void run(Message message) {
         if (ifMeetingIsFound(message.getChatId())) {
+            meetingRepository.deleteExpiredMeetings();
+            meetingRepository.deletePastDate();
             StringBuilder meetings = new StringBuilder();
             meetings.append("Найдены следующие встречи:\n\n");
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("LLLL", new Locale("ru"));

@@ -24,6 +24,7 @@ public class Join extends Action implements ActionInterface {
     public void run(Message message) {
         Meeting meeting = findMeeting(message);
         if (ifMeetingIsFound(meeting)) {
+            meetingRepository.deleteExpiredMeetings();
             meetingRepository.deletePastDate();
             messageService.sendMessageTo(message.getChatId(), "Найдена встреча:");
             setCredentials(message, meeting);

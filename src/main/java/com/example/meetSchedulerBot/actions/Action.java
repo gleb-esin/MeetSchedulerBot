@@ -43,23 +43,25 @@ public abstract class Action {
         // Append the month and year to the calendar string
         String monthName = userLocalDate.getMonth().getDisplayName(TextStyle.FULL_STANDALONE, new Locale("ru"));
         calendar.append("<code>");
-        calendar.append(monthName.substring(0, 1).toUpperCase()).append(monthName.substring(1)).append(" ").append(userLocalDate.getYear());
+        calendar.append(monthName.substring(0, 1).toUpperCase() + monthName.substring(1)).append(" ").append(userLocalDate.getYear());
         calendar.append("\n");
 
         // Append the days of the week to the calendar string
         calendar.append("|  Пн|  Вт|  Ср|  Чт|  Пт|  Сб|  Вс\n");
 
-        // Append the empty spaces for the days before the first day of the month
-        calendar.append("     ".repeat(Math.max(0, firstDayOfWeek - 1)));
+        // Append the empty spaces for the days before the first day of the next month
+        for (int i = 2; i <= firstDayOfWeek; i++) {
+            calendar.append("     ");
+        }
         // Append the calendar days
         for (int i = 1; i <= monthLength; i++) {
             if (!(availableDates.contains(i))) {
                 calendar.append("|    ");
             } else {
                 if (i < 10) {
-                    calendar.append("|  0").append(i);
+                    calendar.append("|  0" + i);
                 } else {
-                    calendar.append("|  ").append(i);
+                    calendar.append("|  " + i);
                 }
             }
             if ((i + firstDayOfWeek - 1) % 7 == 0) {
@@ -67,8 +69,6 @@ public abstract class Action {
             }
         }
         calendar.append("</code>");
-
-        // Return the generated calendar as a string
         return calendar.toString();
     }
 
@@ -80,6 +80,9 @@ public abstract class Action {
      * @return List of Strings with whole users' month dates.
      */
     public List<Integer> wholeMonth(LocalDate userLocalDate) {
+        if(userLocalDate.getMonth().equals(LocalDate.now().getMonth())){
+            userLocalDate = LocalDate.now();
+        }
         int firstDayOfMonth = userLocalDate.getDayOfMonth();
         int monthLength = userLocalDate.lengthOfMonth();
         List<Integer> wholeMonth = new ArrayList<>();
@@ -155,6 +158,14 @@ public abstract class Action {
         return parsedDaysList;
     }
 
+    protected List<Integer> removePassedDays(List<Integer> parsedDaysList, LocalDate userLocalDate) {
+        if(userLocalDate.getMonth().equals(LocalDate.now().getMonth())){
+            int today = LocalDate.now().getDayOfMonth();
+            parsedDaysList.removeIf(i -> i < today);
+        }
+        return parsedDaysList;
+    }
+
     /**
      * If user input busy dates this method will convert available dates from datesParser() to List of Integer with free dates.
      *
@@ -172,6 +183,7 @@ public abstract class Action {
         for (Integer i : parsedDaysList) {
             availableDaysList.remove(i);
         }
+        availableDaysList = removePassedDays(availableDaysList, userLocalDate);
         return availableDaysList;
     }
 
@@ -214,9 +226,7 @@ public abstract class Action {
 
     public LocalDate getUserLocalDate(int month) {
         LocalDate userLocalDate;
-        if (month == LocalDate.now().getMonthValue()) {
-            userLocalDate = LocalDate.now();
-        } else if (month > LocalDate.now().getMonthValue()) {
+        if (month >= LocalDate.now().getMonthValue()) {
             userLocalDate = LocalDate.of(LocalDate.now().getYear(), month, 1);
         } else {
             userLocalDate = LocalDate.of(LocalDate.now().plusYears(1).getYear(), month, 1);
