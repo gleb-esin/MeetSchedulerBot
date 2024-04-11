@@ -26,6 +26,8 @@ public class Edit extends Action implements ActionInterface {
         Meeting meeting = findMeeting(message);
         if (ifMeetingIsFound(meeting)) {
             messageService.sendMessageTo(message.getChatId(), "Найдена встреча: ");
+            int month = meetingRepository.findMonthByPassphrase(meeting.getPassphrase());
+            meeting.setMonth(month);
             messageService.sendMessageTo(meeting.getChat(), meetingToStr(meeting.getPassphrase(), getUserLocalDate(meeting.getMonth())));
             setNewDates(meeting);
             messageService.sendMessageTo(meeting.getChat(), "Встреча " + meeting.getPassphrase() + " успешно изменена!\n");
