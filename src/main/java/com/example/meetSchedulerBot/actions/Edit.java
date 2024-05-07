@@ -22,11 +22,13 @@ public class Edit extends Action implements ActionInterface, ListableInterface {
     }
 
     @Override
+
     public void run(Meeting meeting) {
         meetingRepository.deleteExpiredMeetings();
         meetingRepository.deletePastDate();
         String meetings = getMeetingsList(meeting, "edit");
         messageService.sendMessageTo(meeting.getChat(), meetings);
+
     }
 
     @Override
