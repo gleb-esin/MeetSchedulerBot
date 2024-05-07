@@ -4,34 +4,29 @@ import com.example.meetSchedulerBot.service.Meeting;
 import com.example.meetSchedulerBot.service.MeetingRepository;
 import com.example.meetSchedulerBot.service.MessageService;
 import org.springframework.stereotype.Component;
-import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 
 import java.time.LocalDate;
 
 @Component("removeme")
-public class RemoveMe extends Action implements ActionInterface {
+public class RemoveMe extends Action implements ActionInterface, ListableInterface {
     public RemoveMe(MessageService messageService, MeetingRepository meetingRepository) {
         super(messageService, meetingRepository);
     }
 
     @Override
-    public void run(Message message) {
-        Meeting meeting = findMeeting(message);
-        if (ifMeetingIsFound(meeting)) {
-            meetingRepository.deleteExpiredMeetings();
-            meetingRepository.deletePastDate();
-            messageService.sendMessageTo(message.getChatId(), "Найдена встреча:");
-            setCredentials(message, meeting);
-            LocalDate meetingDate = getUserLocalDate(meeting.getMonth());
-            messageService.sendMessageTo(meeting.getChat(), meetingToStr(meeting.getPassphrase(), meetingDate));
-            deleteMeeting(meeting);
-            notifyParticipants(meeting, getUserLocalDate(meeting.getMonth()), "<b>" + meeting.getName() + "</b> не будет участвовать во встече:");
+    public void run(Meeting meeting) {
+        String meetings;
+        if (meetingRepository.existsByChat(meeting.getChat())) {
+            meetings = getMeetingsList(meeting, "removeme");
+            messageService.sendMessageTo(meeting.getChat(), meetings);
+        } else {
+            messageService.sendMessageTo(meeting.getChat(), "Вы пока не cостоите ни в одной встрече!");
+            messageService.sendMessageTo(meeting.getChat(), "Чтобы продолжить, выбери что-нибудь из меню.");
         }
-        messageService.sendMessageTo(message.getChatId(), "Чтобы продолжить, выбери что-нибудь из меню.");
     }
 
-    private void deleteMeeting(Meeting meeting) {
+    private void removeMe(Meeting meeting) {
         String[] buttonStr = {"Да-yes", "Нет-no"};
         InlineKeyboardMarkup inlineKeyboardMarkup = inlineKeyboardMarkupBuilder(buttonStr);
         messageService.sendInlineKeyboardTo(meeting.getChat(), "Вы точно хоите удалить свое участие в этой встрече?", inlineKeyboardMarkup);
@@ -40,18 +35,20 @@ public class RemoveMe extends Action implements ActionInterface {
             Long nextOwner = meetingRepository.whoWillBeNextOwner(meeting.getPassphrase());
             meetingRepository.setNextOwner(nextOwner, meeting.getPassphrase());
             meetingRepository.deleteByChatAndPassphrase(meeting.getChat(), meeting.getPassphrase());
-            messageService.sendMessageTo(meeting.getChat(), "Вы больше не участвуете во встрече " + meeting.getPassphrase());
+            messageService.sendMessageTo(meeting.getChat(), "Вы больше не участвуете во встрече " + meeting.getPassphrase().split("-")[0]);
         }
     }
 
-    protected boolean ifMeetingIsFound(Meeting meeting) {
-        if (meeting != null) {
-            boolean userIsParticipant = meetingRepository.existsByChatAndPassphrase(meeting.getChat(), meeting.getPassphrase());
-            if (userIsParticipant) {
-                return true;
-            }
-            messageService.sendMessageTo(meeting.getChat(), "Вы не состоите в этой встрече");
-        }
-        return false;
+    @Override
+    public void handleMeeting(Meeting meeting) {
+        setDateCredentials(meeting);
+        meetingRepository.deleteExpiredMeetings();
+        meetingRepository.deletePastDate();
+        messageService.sendMessageTo(meeting.getChat(), "Найдена встреча:");
+        LocalDate meetingDate = getUserLocalDate(meeting.getMonth());
+        messageService.sendMessageTo(meeting.getChat(), meetingToStr(meeting.getPassphrase(), meetingDate));
+        removeMe(meeting);
+        notifyParticipants(meeting, getUserLocalDate(meeting.getMonth()), "<b>" + meeting.getName() + "</b> не будет участвовать во встече:");
+        messageService.sendMessageTo(meeting.getChat(), "Чтобы продолжить, выбери что-нибудь из меню.");
     }
 }

@@ -10,11 +10,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DataAccessException;
-import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.time.format.TextStyle;
 import java.util.*;
 import java.util.regex.Matcher;
@@ -36,6 +36,7 @@ public abstract class Action {
     }
 
     public String calendarPrinter(List<Integer> availableDates, LocalDate userLocalDate) {
+        availableDates = removePassedDays(availableDates, userLocalDate);
         StringBuilder calendar = new StringBuilder();
         int firstDayOfWeek = userLocalDate.getDayOfWeek().getValue();
         int monthLength = userLocalDate.lengthOfMonth();
@@ -69,6 +70,8 @@ public abstract class Action {
             }
         }
         calendar.append("</code>");
+
+        // Return the generated calendar as a string
         return calendar.toString();
     }
 
@@ -80,7 +83,7 @@ public abstract class Action {
      * @return List of Strings with whole users' month dates.
      */
     public List<Integer> wholeMonth(LocalDate userLocalDate) {
-        if(userLocalDate.getMonth().equals(LocalDate.now().getMonth())){
+        if (userLocalDate.getMonth().equals(LocalDate.now().getMonth())) {
             userLocalDate = LocalDate.now();
         }
         int firstDayOfMonth = userLocalDate.getDayOfMonth();
@@ -159,7 +162,7 @@ public abstract class Action {
     }
 
     protected List<Integer> removePassedDays(List<Integer> parsedDaysList, LocalDate userLocalDate) {
-        if(userLocalDate.getMonth().equals(LocalDate.now().getMonth())){
+        if (userLocalDate.getMonth().equals(LocalDate.now().getMonth())) {
             int today = LocalDate.now().getDayOfMonth();
             parsedDaysList.removeIf(i -> i < today);
         }
@@ -169,22 +172,18 @@ public abstract class Action {
     /**
      * If user input busy dates this method will convert available dates from datesParser() to List of Integer with free dates.
      *
-     * @param parsedDaysList - List of Integer from datesParser().
-     * @param userLocalDate  - user's LocalDate from answer.getMeeting()
+     * @param daysList      - List of Integer from datesParser().
+     * @param userLocalDate - user's LocalDate from answer.getMeeting()
      * @return List of Integer with available dates.
      */
-    public List<Integer> invertDates(List<Integer> parsedDaysList, LocalDate userLocalDate) {
-        int firstDayOfMonth = userLocalDate.getDayOfMonth();
+    public List<Integer> invertDates(List<Integer> daysList, LocalDate userLocalDate) {
         int monthLength = userLocalDate.lengthOfMonth();
-        List<Integer> availableDaysList = new ArrayList<>();
+        List<Integer> invertedDaysList = new ArrayList<>();
         for (int i = 1; i <= monthLength; i++) {
-            if (i >= firstDayOfMonth) availableDaysList.add(i);
+            invertedDaysList.add(i);
         }
-        for (Integer i : parsedDaysList) {
-            availableDaysList.remove(i);
-        }
-        availableDaysList = removePassedDays(availableDaysList, userLocalDate);
-        return availableDaysList;
+        invertedDaysList.removeAll(daysList);
+        return invertedDaysList;
     }
 
     public List<Integer> commonDates(List<List<Integer>> lists) {
@@ -203,9 +202,9 @@ public abstract class Action {
      */
     public String meetingToStr(String passphrase, LocalDate userLocalDate) {
         StringBuilder meeting = new StringBuilder();
-        meeting.append("Название: <b>").append(passphrase).append("</b>\n");
+        meeting.append("Описание: <b>").append(passphrase.split("-")[0]).append("</b>\n");
         try {
-            meeting.append("Владелец: <b>").append(meetingRepository.findOwnerByPassphrase(passphrase));
+            meeting.append("Организатор: <b>").append(meetingRepository.findOwnerByPassphrase(passphrase));
         } catch (DataAccessException e) {
             log.error("findOwnerByPassphrase(passphrase) " + e.getMessage());
         }
@@ -234,30 +233,6 @@ public abstract class Action {
         return userLocalDate;
     }
 
-    protected Meeting findMeeting(Message message) {
-        Meeting meeting = new Meeting();
-        String passphrase;
-        if (message.getText().contains("passphrase=")) {
-            passphrase = message.getText().split("=")[1];
-        } else if (message.getText().contains("/start ")) {
-            passphrase = message.getText().split(" ")[1];
-            byte[] chars = Base64.getDecoder().decode(passphrase);
-            passphrase = new String(chars);
-        } else {
-            messageService.sendMessageTo(message.getChatId(), "Введите название встречи: ");
-            passphrase = messageService.receiveMessageFrom(message.getChatId());
-        }
-        boolean meetingIsNotFound = !meetingRepository.existsByPassphrase(passphrase);
-        if (meetingIsNotFound) {
-            messageService.sendMessageTo(message.getChatId(), "Такая встреча не найдена");
-            meeting = null;
-        } else {
-            meeting.setChat(message.getChatId());
-            meeting.setPassphrase(passphrase);
-        }
-        return meeting;
-    }
-
 
     /**
      * Sets new dates for a meeting.
@@ -265,23 +240,30 @@ public abstract class Action {
      * @param meeting the meeting object to update the dates for
      */
     protected void setNewDates(Meeting meeting) {
-        Long chatId = meeting.getChat();
-        messageService.sendMessageTo(chatId, "Введите новые даты в которые Вы <u><b>НЕ МОЖЕТЕ</b></u> встретиться в формате 1 3 7-15:\n" + "(Если таких дат нет, введите 0)");
         LocalDate userLocalDate = getUserLocalDate(meeting.getMonth());
-        String datesString = messageService.receiveMessageFrom(chatId);
-        List<Integer> busyDates = datesParser(datesString, userLocalDate);
-        if (busyDates.isEmpty()) {
-            while (busyDates.isEmpty()) {
-                messageService.sendMessageTo(chatId, "Не распознал числа, повторите, пожалуйста ввод.");
-                messageService.sendMessageTo(chatId, "Введите даты в которые Вы <u><b>НЕ МОЖЕТЕ</b></u> встретиться:");
-                busyDates = datesParser(messageService.receiveMessageFrom(chatId), userLocalDate);
+        List<Integer> availableDates;
+        Long chatId = meeting.getChat();
+        do {
+            messageService.sendMessageTo(chatId, "Введите новые даты в которые Вы <u><b>НЕ МОЖЕТЕ</b></u> встретиться в формате 1 3 7-15:\n" + "(Если таких дат нет, введите 0)");
+            String datesString = messageService.receiveMessageFrom(chatId);
+            List<Integer> busyDates = datesParser(datesString, userLocalDate);
+            if (busyDates.isEmpty()) {
+                while (busyDates.isEmpty()) {
+                    messageService.sendMessageTo(chatId, "Не распознал числа, повторите, пожалуйста ввод.");
+                    messageService.sendMessageTo(chatId, "Введите даты в которые Вы <u><b>НЕ МОЖЕТЕ</b></u> встретиться:");
+                    busyDates = datesParser(messageService.receiveMessageFrom(chatId), userLocalDate);
+                }
             }
-        }
-        meeting.setDates(invertDates(busyDates, userLocalDate), userLocalDate);
+            availableDates = removePassedDays(invertDates(busyDates, userLocalDate),userLocalDate);
+            if(availableDates.isEmpty()){
+                messageService.sendMessageTo(chatId, "Так встреча не состоится...");
+            }
+        } while (availableDates.isEmpty());
+        meeting.setDates(availableDates);
+        meeting.setExpired(userLocalDate, meeting.getDates());
     }
 
     protected void saveMeeting(Meeting meeting) {
-        meetingRepository.deleteExpiredMeetings();
         meetingRepository.save(meeting);
         messageService.sendMessageTo(meeting.getChat(), meetingToStr(meeting.getPassphrase(), getUserLocalDate(meeting.getMonth())));
     }
@@ -297,17 +279,18 @@ public abstract class Action {
         notifiedList.forEach(chat -> messageService.sendMessageTo(chat, notification + "\n" + meetingToStr(meeting.getPassphrase(), meetingDate)));
     }
 
-    protected void setCredentials(Message message, Meeting meeting) {
-        meeting.setName(message.getFrom().getFirstName());
+    protected void setDateCredentials(Meeting meeting) {
         meeting.setMonth(meetingRepository.findMonthByPassphrase(meeting.getPassphrase()));
-        boolean isUserParticipant = meetingRepository.existsByChatAndPassphrase(meeting.getChat(), meeting.getPassphrase());
+        boolean isUserParticipant = meetingRepository.existsByChatAndPassphrase2(meeting.getChat(), meeting.getPassphrase());
         boolean isUserOwner = false;
         if (isUserParticipant) {
             isUserOwner = meetingRepository.isUserOwner(meeting.getChat(), meeting.getPassphrase());
         }
         meeting.setOwner(isUserOwner);
-        List<Integer> dates = commonDates(meetingRepository.concatenateDatesByPassphrase(meeting.getPassphrase()));
-        meeting.setDates(dates, getUserLocalDate(meeting.getMonth()));
+        List<List<Integer>> concatenatedDates = meetingRepository.concatenateDatesByPassphrase(meeting.getPassphrase());
+        List<Integer> dates = commonDates(concatenatedDates);
+        meeting.setDates(dates);
+        meeting.setExpired(getUserLocalDate(meeting.getMonth()), meeting.getDates());
     }
 
 
@@ -327,8 +310,43 @@ public abstract class Action {
         return inlineKeyboardMarkup;
     }
 
-    protected String linkCreator(Meeting meeting, String description) {
-        byte[] byteArray = meeting.getPassphrase().getBytes();
+    protected String linkCreator(Meeting meeting, String description, String action) {
+        Integer id = meetingRepository.findIdByPassphrase(meeting.getPassphrase());
+        byte[] byteArray = (action + "=" + id).getBytes();
         return "<a href=\"https://t.me/" + telegramBotUsername + "?start=" + Base64.getEncoder().encodeToString(byteArray) + "\">" + description + "</a>";
+    }
+
+    protected String getMeetingsList(Meeting meeting, String action) {
+        StringBuilder meetings = new StringBuilder();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("LLLL", new Locale("ru"));
+        List<Meeting> myParticipation = meetingRepository.findMyParticipation((meeting.getChat()));
+        List<Meeting> myMeetings = meetingRepository.findMyMeetings((meeting.getChat()));
+        int n = 1;
+        if (!myMeetings.isEmpty()) {
+            meetings.append("Найдены следующие Ваши встречи:\n\n");
+            for (Meeting m : myMeetings) {
+                meetings.append(n).append(". ");
+                meetings.append("<b>").append(linkCreator(m, m.getPassphrase().split("-")[0], action)).append("</b>").append(", ");
+                meetings.append(getUserLocalDate(m.getMonth()).format(formatter)).append(" ");
+                meetings.append(getUserLocalDate(m.getMonth()).getYear());
+                meetings.append("\n");
+                n++;
+            }
+        }
+        if (!action.equals("deletemeeting")) {
+            if (!myParticipation.isEmpty()) {
+                meetings.append("\nНайдены следующие встречи c Вашим участием:\n\n");
+                n = 1;
+                for (Meeting m : myParticipation) {
+                    meetings.append(n).append(". ");
+                    meetings.append("<b>").append(linkCreator(m, m.getPassphrase().split("-")[0], action)).append("</b>").append(" организатор ").append(meetingRepository.findOwnersName(m.getPassphrase())).append(", ");
+                    meetings.append(getUserLocalDate(m.getMonth()).format(formatter)).append(" ");
+                    meetings.append(getUserLocalDate(m.getMonth()).getYear());
+                    meetings.append("\n");
+                    n++;
+                }
+            }
+        }
+        return meetings.toString();
     }
 }

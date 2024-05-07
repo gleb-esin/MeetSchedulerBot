@@ -7,7 +7,6 @@ import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.telegram.telegrambots.meta.api.objects.Message;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -21,55 +20,49 @@ public class Join extends Action implements ActionInterface {
     }
 
     @Override
-    public void run(Message message) {
-        Meeting meeting = findMeeting(message);
-        if (ifMeetingIsFound(meeting)) {
+    public void run(Meeting meeting) {
+        boolean userIsNotParticipant = !meetingRepository.existsByChatAndPassphrase2(meeting.getChat(), meeting.getPassphrase());
+        if (userIsNotParticipant) {
             meetingRepository.deleteExpiredMeetings();
             meetingRepository.deletePastDate();
-            messageService.sendMessageTo(message.getChatId(), "Найдена встреча:");
-            setCredentials(message, meeting);
+            messageService.sendMessageTo(meeting.getChat(), "Найдена встреча:");
+            setDateCredentials(meeting);
             LocalDate meetingDate = getUserLocalDate(meeting.getMonth());
             messageService.sendMessageTo(meeting.getChat(), meetingToStr(meeting.getPassphrase(), meetingDate));
             setNewDates(meeting.getChat(), meetingDate, meeting);
             messageService.sendMessageTo(meeting.getChat(), "Вы присоединились к встрече:");
             saveMeeting(meeting);
             notifyParticipants(meeting, meetingDate, "<b>" + meeting.getName() + "</b> присоединился(-лась) ко встече " +
-                    "<b>" + meeting.getPassphrase() + "</b>.\n");
+                    "<b>" + meeting.getPassphrase().split("-")[0] + "</b>.\n");
+        } else {
+            messageService.sendMessageTo(meeting.getChat(), "Вы уже состоите в этой встрече!");
         }
-        messageService.sendMessageTo(message.getChatId(), "Чтобы продолжить, выбери что-нибудь из меню.");
+        messageService.sendMessageTo(meeting.getChat(), "Чтобы продолжить, выбери что-нибудь из меню.");
     }
 
 
     private void setNewDates(Long chatId, LocalDate userLocalDate, Meeting meeting) {
-        messageService.sendMessageTo(chatId, "Введите новые даты в которые Вы <u><b>НЕ МОЖЕТЕ</b></u> встретиться в формате 1 3 7-15:\n" +
-                "(Если таких дат нет, введите 0)");
-        String usersBusyDates = messageService.receiveMessageFrom(chatId);
-        List<Integer> busyDatesList = datesParser(usersBusyDates, userLocalDate);
-        if (busyDatesList.isEmpty()) {
-            while (busyDatesList.isEmpty()) {
-                messageService.sendMessageTo(chatId, "Не распознал числа, повторите, пожалуйста ввод.");
-                messageService.sendMessageTo(chatId, "Введите даты в которые Вы <u><b>НЕ МОЖЕТЕ</b></u> встретиться:");
-                busyDatesList = datesParser(messageService.receiveMessageFrom(chatId), userLocalDate);
-            }
-        } else {
-            List<List<Integer>> meetingAvailableDates = meetingRepository.concatenateDatesByPassphrase(meeting.getPassphrase());
-            List<Integer> commonDates = commonDates(meetingAvailableDates);
-            List<Integer> meetingBusyDates = invertDates(commonDates, userLocalDate);
-            busyDatesList.addAll(meetingBusyDates);
-            List<Integer> availabeDatesList = invertDates(busyDatesList, userLocalDate);
-            meeting.setDates(availabeDatesList);
-        }
-    }
-    protected boolean ifMeetingIsFound(Meeting meeting) {
-        if (meeting != null) {
-            boolean userAlreadyInMeetings = meetingRepository.existsByChatAndPassphrase(meeting.getChat(), meeting.getPassphrase());
-            if (userAlreadyInMeetings) {
-                messageService.sendMessageTo(meeting.getChat(), "Вы уже состоите в этой встрече");
-                return false;
+        do {
+            messageService.sendMessageTo(chatId, "Введите даты в которые Вы <u><b>НЕ МОЖЕТЕ</b></u> встретиться в формате 1 3 7-15:\n" +
+                    "(Если таких дат нет, введите 0)");
+            String usersBusyDates = messageService.receiveMessageFrom(chatId);
+            List<Integer> busyDatesList = datesParser(usersBusyDates, userLocalDate);
+            if (busyDatesList.isEmpty()) {
+                while (busyDatesList.isEmpty()) {
+                    messageService.sendMessageTo(chatId, "Не распознал числа, повторите, пожалуйста ввод.");
+                    messageService.sendMessageTo(chatId, "Введите даты в которые Вы <u><b>НЕ МОЖЕТЕ</b></u> встретиться:");
+                    busyDatesList = datesParser(messageService.receiveMessageFrom(chatId), userLocalDate);
+                }
             } else {
-                return true;
+                List<Integer> availabeDatesList = invertDates(busyDatesList, userLocalDate);
+                meeting.setDates(availabeDatesList);
+                meeting.setExpired(userLocalDate, availabeDatesList);
             }
-        }
-        return false;
+            if (meeting.getDates().isEmpty()) {
+                messageService.sendMessageTo(chatId, "Вы не оставили свободных дат другим учасникам!");
+                messageService.sendMessageTo(chatId, "Введите новые даты даты в которые Вы <u><b>НЕ МОЖЕТЕ</b></u> встретиться в формате 1 3 7-15:\n" +
+                        "(Если таких дат нет, введите 0)");
+            }
+        } while (meeting.getDates().isEmpty());
     }
 }
