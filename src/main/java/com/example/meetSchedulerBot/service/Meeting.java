@@ -41,11 +41,9 @@ public class Meeting {
     @Column
     private LocalDate expired;
 
-
-    //need to test
-    public void setDates(List<Integer> availableDaysList, LocalDate meetingDate) {
+    public void setDates(List<Integer> availableDaysList) {
         this.dates = availableDaysList;
-        this.expired = LocalDate.of(meetingDate.getYear(), getMonth(), availableDaysList.get(availableDaysList.size() - 1));
+
     }
 
     public void setMonth(int month) {
@@ -57,8 +55,31 @@ public class Meeting {
         this.month = monthMap.get(month.toLowerCase());
     }
 
+    public void setExpired(LocalDate meetingDate, List<Integer> availableDaysList) {
+        Integer lastAvailableDay = 1;
+        if (!availableDaysList.isEmpty()) {
+            lastAvailableDay = availableDaysList.get(availableDaysList.size() - 1);
+        }
+        this.expired = LocalDate.of(meetingDate.getYear(), meetingDate.getMonthValue(), lastAvailableDay);
+
+    }
+
     @Override
     public String toString() {
         return "Meeting{" + "meetingID=" + id + ", chat=" + chat + ", name='" + name + '\'' + ", passphrase='" + passphrase + '\'' + ", month=" + month + ", owner=" + owner + ", dates=" + dates + ", expired=" + expired + "}";
+    }
+    
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Meeting meeting = (Meeting) o;
+        return month == meeting.month &&
+                chat.equals(meeting.chat) &&
+                owner == meeting.owner &&
+               name.equals(meeting.name) &&
+                passphrase.equals(meeting.passphrase) &&
+                dates.equals(meeting.dates) &&
+                expired.equals(meeting.expired);
     }
 }

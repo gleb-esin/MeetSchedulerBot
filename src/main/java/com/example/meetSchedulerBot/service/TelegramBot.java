@@ -5,6 +5,7 @@ import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramWebhookBot;
@@ -32,11 +33,11 @@ public class TelegramBot extends TelegramWebhookBot {
         this.config = config;
         this.messageHandler = messageHandler;
     }
+
+    @EventListener(ApplicationReadyEvent.class)
     private void registerMenu() {
         List<BotCommand> menu = new ArrayList<>();
         menu.add(new BotCommand("/new", "Создание новой встечи"));
-        menu.add(new BotCommand("/join", "Присоединисться"));
-        menu.add(new BotCommand("/find", "Найти встречу"));
         menu.add(new BotCommand("/mymeetings", "Найти все свои встречи"));
         menu.add(new BotCommand("/edit", "Редактировать даты"));
         menu.add(new BotCommand("/removeme", "Удалить свое участие"));
@@ -69,12 +70,11 @@ public class TelegramBot extends TelegramWebhookBot {
 
 
     @Override
-    public void onRegister() {
-        registerMenu();
-    }
+    public void onRegister() {}
 
     /**
      * A listener method for handling outgoing messages to the server.
+     *
      * @param sendMessage the event to be handled, expects a SendMessage object
      */
     @EventListener(SendMessage.class)

@@ -7,7 +7,6 @@ import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.telegram.telegrambots.meta.api.objects.Message;
 
 import java.time.LocalDate;
 import java.util.Arrays;
@@ -23,38 +22,27 @@ public class New extends Action implements ActionInterface {
     }
 
     @Override
-    public void run(Message message) {
-        Meeting meeting = new Meeting();
-        Long chatId = message.getChatId();
-        setCredentials(message, meeting);
-        setPassphrase(chatId, meeting);
-        setMonth(chatId, meeting);
-        setNewDates(meeting);
-        messageService.sendMessageTo(chatId, "Создана встреча: ");
-        saveMeeting(meeting);
-        sendLink(chatId, meeting);
-        messageService.sendMessageTo(chatId, "Чтобы продолжить, выбери что-нибудь из меню.");
-    }
-
-    @Override
-    protected void setCredentials(Message message, Meeting meeting) {
-        meeting.setChat(message.getChatId());
-        meeting.setName(message.getChat().getFirstName());
+    public void run(Meeting meeting) {
+        Long chatId = meeting.getChat();
         meeting.setOwner(true);
+        setPassphrase(chatId, meeting);
+        if (myMeetingIsNotExist(meeting.getPassphrase())) {
+            messageService.sendMessageTo(chatId, "Встреча " + meeting.getPassphrase().split("-")[0] + " успешно создана!");
+            setMonth(chatId, meeting);
+            setNewDates(meeting);
+            messageService.sendMessageTo(chatId, "Создана встреча: ");
+            saveMeeting(meeting);
+            sendLink(chatId, meeting);
+        } else {
+            messageService.sendMessageTo(chatId, "Встреча с таким названием уже существует!");
+        }
+        messageService.sendMessageTo(chatId, "Чтобы продолжить, выбери что-нибудь из меню.");
     }
 
     private void setPassphrase(Long chatId, Meeting meeting) {
         messageService.sendMessageTo(chatId, "Введите название встречи: ");
         String passphrase = messageService.receiveMessageFrom(chatId);
-        if (meetingRepository.existsByPassphrase(passphrase)) {
-            while (meetingRepository.existsByPassphrase(passphrase)) {
-                messageService.sendMessageTo(chatId, "Это название уже занято, попробуйте ввести другое название");
-                passphrase = messageService.receiveMessageFrom(chatId);
-            }
-        } else {
-            messageService.sendMessageTo(chatId, "Встреча " + passphrase + " успешно создана!");
-        }
-        meeting.setPassphrase(passphrase);
+        meeting.setPassphrase(passphrase + "-" + meeting.getChat());
     }
 
     private void setMonth(Long chatId, Meeting meeting) {
@@ -75,8 +63,12 @@ public class New extends Action implements ActionInterface {
 
     private void sendLink(Long chatId, Meeting meeting) {
         messageService.sendMessageTo(chatId, "Чтобы пригласить кого-нибудь просто прешли им это сообщение:");
-        String description = "Присоединяйся к моей встрече " + meeting.getPassphrase();
-        String link = linkCreator(meeting, description);
-        messageService.sendMessageTo(chatId, "Привет, это <b>" + meeting.getName() + "</b>! " + link+ " через @MeetSchedulerbot!");
+        String description = "Присоединяйся к моей встрече <b> " + meeting.getPassphrase().split("-")[0] + "</b>";
+        String link = linkCreator(meeting, description, "join");
+        messageService.sendMessageTo(chatId, "Привет, это <b>" + meeting.getName() + "</b>!\n" + link + "\nчерез @MeetSchedulerbot!");
+    }
+
+    private boolean myMeetingIsNotExist(String passphrase) {
+        return !meetingRepository.existsByPassphrase(passphrase);
     }
 }
